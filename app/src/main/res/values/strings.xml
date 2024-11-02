@@ -1,4 +1,9 @@
 <resources>
-    <string name="app_name">MAD Demo W23</string>
-    <string name="welcome_message">Welcome to MAD W23</string>
+    <string name="e_mail">E-Mail</string>
+    <string name="password">Passwort</string>
+    <string name="login">Login</string>
+    <string name="done">Erledigt</string>
+    <string name="contacts">Kontakte</string>
+    <string name="description">Beschreibung</string>
+    <string name="name">Name</string>
 </resources>

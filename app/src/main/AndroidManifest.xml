@@ -8,18 +8,22 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity" android:exported="true">
+
+        <!-- Register OverviewActivity with intent filters for the main launcher -->
+        <activity android:name="de.thieme.view.OverviewActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Register ToDoDetailActivity to enable navigation to the detail view -->
+        <activity android:name="de.thieme.view.ToDoDetailActivity" android:exported="true"/>
+
     </application>
 
 </manifest>
