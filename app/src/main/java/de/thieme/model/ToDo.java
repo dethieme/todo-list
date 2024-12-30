@@ -14,7 +14,7 @@ public class ToDo implements Serializable {
 
     private static final long serialVersionUID = -6410064189686738560L;
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private long id;
 
     private String name;
@@ -22,7 +22,7 @@ public class ToDo implements Serializable {
     private long expiry;
     private boolean isDone;
     private boolean isFavourite;
-    private List<String> contacts = new ArrayList<>();
+    // private List<String> contacts = new ArrayList<>();
 
     // Default constructor required for Room
     public ToDo() {}
@@ -83,11 +83,11 @@ public class ToDo implements Serializable {
     }
 
     public List<String> getContacts() {
-        return contacts;
+        return new ArrayList<>();
     }
 
     public void setContacts(List<String> contacts) {
-        this.contacts = contacts;
+       // this.contacts = contacts;
     }
 
     @Override
