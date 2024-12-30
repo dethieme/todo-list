@@ -3,12 +3,14 @@ package de.thieme.model;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import de.thieme.crud.CRUDEntity;
+import java.util.Objects;
 
 @Entity(tableName = "to_dos")
-public class ToDo implements CRUDEntity {
+public class ToDo implements Serializable {
 
     private static final long serialVersionUID = -6410064189686738560L;
 
@@ -88,9 +90,19 @@ public class ToDo implements CRUDEntity {
         this.contacts = contacts;
     }
 
-    public boolean equals(ToDo other) {
-        return this.getId() == other.getId();
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+
+        return id == ((ToDo) object).id;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
     @NonNull
     @Override
     public String toString() {

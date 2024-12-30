@@ -8,8 +8,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import org.dieschnittstelle.mobile.android.skeleton.R;
-import java.util.List;
+
 import de.thieme.model.ToDo;
+import de.thieme.util.ImageViewUtil;
 
 public class DetailViewActivity extends AppCompatActivity {
 
@@ -28,13 +29,17 @@ public class DetailViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail_view);
 
         ToDo todo = (ToDo) getIntent().getSerializableExtra(ARG_TODO);
-        assert todo != null : "'" + ARG_TODO + "' is null.";
+
+        if (todo == null) {
+            todo = new ToDo();
+        }
 
         populateViews(todo);
         populateContacts(todo);
 
+        ToDo finalTodo = todo;
         findViewById(R.id.saveTodoActionButton).setOnClickListener(view -> {
-           this.saveItem(todo);
+           this.saveItem(finalTodo);
         });
     }
 
@@ -72,8 +77,15 @@ public class DetailViewActivity extends AppCompatActivity {
 
     protected void saveItem(ToDo todo) {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(ARG_TODO, todo);
 
+        todo.setName(nameTextView.getText().toString());
+        todo.setDescription(descriptionTextView.getText().toString());
+        // todo.setExpiry(expiryTextView.getText());
+        todo.setIsDone(doneCheckBox.isChecked());
+        // todo.setIsFavourite(favoriteImageView.get);
+        // todo.setContacts(contactsListView.ch;
+
+        returnIntent.putExtra(ARG_TODO, todo);
         this.setResult(DetailViewActivity.RESULT_OK, returnIntent);
         this.finish();
     }

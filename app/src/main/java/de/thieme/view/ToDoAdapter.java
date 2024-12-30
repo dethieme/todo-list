@@ -8,10 +8,15 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+
 import org.dieschnittstelle.mobile.android.skeleton.R;
+
 import java.util.List;
+
 import de.thieme.model.ToDo;
+import de.thieme.util.ImageViewUtil;
 
 public class ToDoAdapter extends ArrayAdapter<ToDo> {
 
@@ -24,31 +29,30 @@ public class ToDoAdapter extends ArrayAdapter<ToDo> {
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         // Reuse convertView or inflate new view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(
-                    R.layout.item_todo,
-                    parent,
-                    false
-            );
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_todo, null);
         }
 
-        ToDo toDo = getItem(position);
+        ToDo todo = getItem(position);
 
-        // Find views
+        // Data Binding
         CheckBox doneCheckBox = convertView.findViewById(R.id.todoIsDone);
-        TextView nameView = convertView.findViewById(R.id.todoName);
-        TextView expiryView = convertView.findViewById(R.id.todoExpiry);
-        ImageView favoriteImageView = convertView.findViewById(R.id.todoIsFavorite);
-
-        favoriteImageView.setOnClickListener(view -> {
-            toDo.setIsFavourite(!toDo.isFavourite());
-            ImageViewUtil.setFavoriteIcon(favoriteImageView, toDo);
+        doneCheckBox.setChecked(todo.isDone());
+        doneCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            todo.setIsDone(isChecked);
         });
 
-        // Populate views
-        nameView.setText(toDo.getName());
-        expiryView.setText(String.valueOf(toDo.getExpiry()));
-        doneCheckBox.setChecked(toDo.isDone());
-        ImageViewUtil.setFavoriteIcon(favoriteImageView, toDo);
+        TextView nameView = convertView.findViewById(R.id.todoName);
+        nameView.setText(todo.getName());
+
+        TextView expiryView = convertView.findViewById(R.id.todoExpiry);
+        expiryView.setText(String.valueOf(todo.getExpiry()));
+
+        ImageView favoriteImageView = convertView.findViewById(R.id.todoIsFavorite);
+        favoriteImageView.setOnClickListener(view -> {
+            todo.setIsFavourite(!todo.isFavourite());
+            ImageViewUtil.setFavoriteIcon(favoriteImageView, todo);
+        });
+        ImageViewUtil.setFavoriteIcon(favoriteImageView, todo);
 
         return convertView;
     }

@@ -1,4 +1,4 @@
-package de.thieme.view;
+package de.thieme.util;
 
 import android.widget.ImageView;
 import org.dieschnittstelle.mobile.android.skeleton.R;
