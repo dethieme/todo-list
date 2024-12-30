@@ -7,13 +7,13 @@
 
     <application
         android:allowBackup="true"
+        android:label="To Do-Liste"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
 
-        <!-- Register OverviewActivity with intent filters for the main launcher -->
         <activity android:name="de.thieme.view.OverviewActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,8 +21,8 @@
             </intent-filter>
         </activity>
 
-        <!-- Register ToDoDetailActivity to enable navigation to the detail view -->
-        <activity android:name="de.thieme.view.ToDoDetailActivity" android:exported="true"/>
+        <activity android:name="de.thieme.view.LoginActivity" android:exported="true"/>
+        <activity android:name="de.thieme.view.DetailViewActivity" android:exported="true"/>
 
     </application>
 

@@ -3,14 +3,12 @@ package de.thieme.model;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-
 import de.thieme.crud.CRUDEntity;
 
 @Entity(tableName = "to_dos")
-public class ToDo implements CRUDEntity, Serializable {
+public class ToDo implements CRUDEntity {
 
     private static final long serialVersionUID = -6410064189686738560L;
 
@@ -20,9 +18,9 @@ public class ToDo implements CRUDEntity, Serializable {
     private String name;
     private String description;
     private long expiry;
-    private boolean done;
-    private boolean favourite;
-    private List<String> contacts;
+    private boolean isDone;
+    private boolean isFavourite;
+    private List<String> contacts = new ArrayList<>();
 
     // Default constructor required for Room
     public ToDo() {}
@@ -67,19 +65,19 @@ public class ToDo implements CRUDEntity, Serializable {
     }
 
     public boolean isDone() {
-        return done;
+        return isDone;
     }
 
-    public void setDone(boolean done) {
-        this.done = done;
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
     public boolean isFavourite() {
-        return favourite;
+        return isFavourite;
     }
 
-    public void setFavourite(boolean favourite) {
-        this.favourite = favourite;
+    public void setIsFavourite(boolean isFavourite) {
+        this.isFavourite = isFavourite;
     }
 
     public List<String> getContacts() {

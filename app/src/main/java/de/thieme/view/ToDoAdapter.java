@@ -24,38 +24,31 @@ public class ToDoAdapter extends ArrayAdapter<ToDo> {
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         // Reuse convertView or inflate new view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.todo_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(
+                    R.layout.item_todo,
+                    parent,
+                    false
+            );
         }
 
         ToDo toDo = getItem(position);
 
         // Find views
-        CheckBox doneCheckBox = convertView.findViewById(R.id.todoDoneCheckBox);
+        CheckBox doneCheckBox = convertView.findViewById(R.id.todoIsDone);
         TextView nameView = convertView.findViewById(R.id.todoName);
         TextView expiryView = convertView.findViewById(R.id.todoExpiry);
-        ImageView favoriteImageView = convertView.findViewById(R.id.todoFavouriteIcon);
+        ImageView favoriteImageView = convertView.findViewById(R.id.todoIsFavorite);
 
-        // Set data in views
+        favoriteImageView.setOnClickListener(view -> {
+            toDo.setIsFavourite(!toDo.isFavourite());
+            ImageViewUtil.setFavoriteIcon(favoriteImageView, toDo);
+        });
+
+        // Populate views
         nameView.setText(toDo.getName());
         expiryView.setText(String.valueOf(toDo.getExpiry()));
         doneCheckBox.setChecked(toDo.isDone());
-
-        favoriteImageView.setOnClickListener(view -> {
-            toDo.setFavourite(!toDo.isFavourite());
-
-            if (toDo.isFavourite()) {
-                favoriteImageView.setImageResource(R.drawable.baseline_star_24);
-            } else {
-                favoriteImageView.setImageResource(R.drawable.baseline_star_border_24);
-            }
-        });
-
-        // Set favourite icon
-        if (toDo.isFavourite()) {
-            favoriteImageView.setImageResource(R.drawable.baseline_star_24);
-        } else {
-            favoriteImageView.setImageResource(R.drawable.baseline_star_border_24);
-        }
+        ImageViewUtil.setFavoriteIcon(favoriteImageView, toDo);
 
         return convertView;
     }
