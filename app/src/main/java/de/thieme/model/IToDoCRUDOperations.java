@@ -2,7 +2,7 @@ package de.thieme.model;
 
 import java.util.List;
 
-public interface ICRUDEntityOperations {
+public interface IToDoCRUDOperations {
     ToDo create(ToDo todo);
     List<ToDo> readAll();
     ToDo read(long id);

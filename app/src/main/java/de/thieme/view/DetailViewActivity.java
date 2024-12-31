@@ -85,4 +85,12 @@ public class DetailViewActivity extends AppCompatActivity {
         this.setResult(RESULT_CODE_EDITED_OR_CREATED, returnIntent);
         this.finish();
     }
+
+    public void deleteTodo() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(ARG_TODO, todo);
+
+        this.setResult(RESULT_CODE_DELETED, returnIntent);
+        this.finish();
+    }
 }

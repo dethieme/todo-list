@@ -3,7 +3,7 @@ package de.thieme.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ToDoCRUDOperations implements ICRUDEntityOperations {
+public class ToDoCRUDOperations implements IToDoCRUDOperations {
 
     private static long ID_COUNT = 0;
 

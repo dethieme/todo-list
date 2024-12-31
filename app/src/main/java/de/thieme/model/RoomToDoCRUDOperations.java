@@ -13,7 +13,7 @@ import androidx.room.Update;
 
 import java.util.List;
 
-public class LocalRoomToDoCRUDOperations implements ICRUDEntityOperations {
+public class RoomToDoCRUDOperations implements IToDoCRUDOperations {
 
     @Dao
     public static interface SQLiteToDoCRUDOperations {
@@ -40,7 +40,7 @@ public class LocalRoomToDoCRUDOperations implements ICRUDEntityOperations {
 
     private final ToDoDatabase database;
 
-    public LocalRoomToDoCRUDOperations(Context context) {
+    public RoomToDoCRUDOperations(Context context) {
         database = Room.databaseBuilder(
                 context.getApplicationContext(),
                         ToDoDatabase.class,
@@ -73,6 +73,7 @@ public class LocalRoomToDoCRUDOperations implements ICRUDEntityOperations {
 
     @Override
     public boolean delete(long id) {
+        readAll().stream().filter(toDo -> toDo.getId() == id).findFirst().get();
         return false;
     }
 }
