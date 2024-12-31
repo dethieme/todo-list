@@ -11,7 +11,6 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.Update;
 
-import java.util.Collections;
 import java.util.List;
 
 public class LocalRoomToDoCRUDOperations implements ICRUDEntityOperations {
@@ -39,7 +38,7 @@ public class LocalRoomToDoCRUDOperations implements ICRUDEntityOperations {
         public abstract SQLiteToDoCRUDOperations getDao();
     }
 
-    private ToDoDatabase database;
+    private final ToDoDatabase database;
 
     public LocalRoomToDoCRUDOperations(Context context) {
         database = Room.databaseBuilder(

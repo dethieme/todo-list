@@ -5,13 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 
 import org.dieschnittstelle.mobile.android.skeleton.R;
+import org.dieschnittstelle.mobile.android.skeleton.databinding.ItemTodoBinding;
 
 import java.util.List;
 
@@ -20,40 +21,41 @@ import de.thieme.util.ImageViewUtil;
 
 public class ToDoAdapter extends ArrayAdapter<ToDo> {
 
-    public ToDoAdapter(Context context, List<ToDo> todos) {
-        super(context, 0, todos);
+    public ToDoAdapter(Context owner, List<ToDo> todos) {
+        super(owner, R.layout.item_todo, todos);
     }
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        // Reuse convertView or inflate new view
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_todo, null);
-        }
-
+    public View getView(int position, View recyclableToDoView, @NonNull ViewGroup parent) {
+        ItemTodoBinding binding;
+        View todoListView;
         ToDo todo = getItem(position);
 
+        // Reuse convertView or inflate new view
+        if (recyclableToDoView == null) {
+            binding = DataBindingUtil
+                    .inflate(LayoutInflater.from(getContext()), R.layout.item_todo, null, false);
+            todoListView = binding.getRoot();
+            todoListView.setTag(binding);
+        } else {
+            todoListView = recyclableToDoView;
+            binding = (ItemTodoBinding) todoListView.getTag();
+        }
+
+        binding.setTodo(todo);
+
         // Data Binding
-        CheckBox doneCheckBox = convertView.findViewById(R.id.todoIsDone);
-        doneCheckBox.setChecked(todo.isDone());
-        doneCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-            todo.setIsDone(isChecked);
-        });
-
-        TextView nameView = convertView.findViewById(R.id.todoName);
-        nameView.setText(todo.getName());
-
-        TextView expiryView = convertView.findViewById(R.id.todoExpiry);
+        TextView expiryView = todoListView.findViewById(R.id.todoExpiry);
         expiryView.setText(String.valueOf(todo.getExpiry()));
 
-        ImageView favoriteImageView = convertView.findViewById(R.id.todoIsFavorite);
+        ImageView favoriteImageView = todoListView.findViewById(R.id.todoIsFavorite);
         favoriteImageView.setOnClickListener(view -> {
             todo.setIsFavourite(!todo.isFavourite());
             ImageViewUtil.setFavoriteIcon(favoriteImageView, todo);
         });
         ImageViewUtil.setFavoriteIcon(favoriteImageView, todo);
 
-        return convertView;
+        return todoListView;
     }
 }

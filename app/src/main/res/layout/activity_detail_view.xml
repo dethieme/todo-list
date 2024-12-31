@@ -1,98 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="controller"
+            type="de.thieme.view.DetailViewActivity" />
+    </data>
 
-    <CheckBox
-        android:id="@+id/todoIsDone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="-7dp" />
-
-    <EditText
-        android:id="@+id/todoName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        app:layout_constraintStart_toEndOf="@id/todoIsDone"
-        app:layout_constraintTop_toTopOf="@id/todoIsDone"
-        app:layout_constraintEnd_toStartOf="@id/todoIsFavorite"
-        android:layout_marginTop="-8dp" />
-
-    <ImageView
-        android:id="@+id/todoIsFavorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/baseline_star_border_24"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:layout_constraintTop_toTopOf="@id/todoIsDone"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:adjustViewBounds="true" />
-
-    <TextView
-        android:id="@+id/todoExpiry"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textColor="#757575"
-        app:layout_constraintTop_toBottomOf="@id/todoName"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/toDoDescriptionLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="@string/description"
-        app:layout_constraintTop_toBottomOf="@id/todoExpiry"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-    <EditText
-        android:id="@+id/toDoDescription"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="14sp"
-        android:layout_marginStart="-3dp"
-        app:layout_constraintTop_toBottomOf="@id/toDoDescriptionLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/todoContacts"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:text="@string/contacts"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/toDoDescription"
-        app:layout_constraintStart_toStartOf="parent" />
-    <ListView
-        android:id="@+id/contactsListView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/todoContacts"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/saveTodoActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/baseline_save_white_24dp" />
+        <CheckBox
+            android:id="@+id/todoIsDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-7dp"
+            android:layout_marginTop="8dp"
+            android:checked="@={controller.todo.isDone}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <EditText
+            android:id="@+id/todoName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-8dp"
+            android:text="@={controller.todo.name}"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@id/todoIsFavorite"
+            app:layout_constraintStart_toEndOf="@id/todoIsDone"
+            app:layout_constraintTop_toTopOf="@id/todoIsDone" />
+
+        <ImageView
+            android:id="@+id/todoIsFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/favorite_icon"
+            android:src="@drawable/baseline_star_border_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/todoIsDone" />
+
+        <TextView
+            android:id="@+id/todoExpiry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/todoName" />
+
+        <TextView
+            android:id="@+id/toDoDescriptionLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/description"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/todoExpiry" />
+        <EditText
+            android:id="@+id/toDoDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-3dp"
+            android:layout_marginTop="8dp"
+            android:hint="@string/description"
+            android:text="@={controller.todo.description}"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toDoDescriptionLabel" />
+
+        <TextView
+            android:id="@+id/todoContacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/contacts"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toDoDescription" />
+
+        <ListView
+            android:id="@+id/contactsListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/todoContacts" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/saveTodoActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:onClick="@{() -> controller.saveTodo()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/baseline_save_white_24dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

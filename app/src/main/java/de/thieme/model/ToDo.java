@@ -87,7 +87,7 @@ public class ToDo implements Serializable {
     }
 
     public void setContacts(List<String> contacts) {
-       // this.contacts = contacts;
+        // this.contacts = contacts;
     }
 
     @Override
@@ -106,6 +106,13 @@ public class ToDo implements Serializable {
     @NonNull
     @Override
     public String toString() {
-        return "{ToDo " + this.id + " " + this.name + ", " + this.description + ", " + getExpiry() + "}";
+        return "ToDo{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", expiry=" + expiry +
+                ", isDone=" + isDone +
+                ", isFavourite=" + isFavourite +
+                '}';
     }
 }

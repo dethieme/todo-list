@@ -6,4 +6,5 @@
     <string name="contacts">Kontakte</string>
     <string name="description">Beschreibung</string>
     <string name="name">Name</string>
+    <string name="favorite_icon">Favorisiert-Icon</string>
 </resources>
