@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <data>
+
         <variable
-            name="controller"
-            type="de.thieme.view.DetailViewActivity" />
+            name="viewModel"
+            type="de.thieme.viewmodel.DetailViewViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,26 +14,23 @@
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <CheckBox
-            android:id="@+id/todoIsDone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="-7dp"
-            android:layout_marginTop="8dp"
-            android:checked="@={controller.todo.isDone}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/todoName"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-8dp"
-            android:text="@={controller.todo.name}"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toStartOf="@id/todoIsFavorite"
-            app:layout_constraintStart_toEndOf="@id/todoIsDone"
-            app:layout_constraintTop_toTopOf="@id/todoIsDone" />
+            android:error="@{viewModel.errorStatus}"
+            android:hint="@string/name"
+            app:hintEnabled="true"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onEditorAction="@{(view, keyId, event) -> viewModel.checkFieldInputInvalid(keyId)}"
+                android:onTextChanged="@{() -> viewModel.onNameFieldInputChanged()}"
+                android:singleLine="true"
+                android:text="@={viewModel.toDo.name}" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
             android:id="@+id/todoIsFavorite"
@@ -42,7 +41,16 @@
             android:contentDescription="@string/favorite_icon"
             android:src="@drawable/baseline_star_border_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/todoIsDone" />
+            app:layout_constraintTop_toTopOf="@id/todoName" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/todoIsDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.toDo.isDone}"
+            android:text="@string/done"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/todoName" />
 
         <TextView
             android:id="@+id/todoExpiry"
@@ -52,29 +60,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/todoName" />
 
-        <TextView
-            android:id="@+id/toDoDescriptionLabel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/description"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/todoExpiry" />
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/toDoDescription"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="-3dp"
             android:layout_marginTop="8dp"
             android:hint="@string/description"
-            android:text="@={controller.todo.description}"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toDoDescriptionLabel" />
+            app:hintEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/todoIsDone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:lines="10"
+                android:minLines="5"
+                android:text="@={viewModel.toDo.description}" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/todoContacts"
@@ -101,7 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:onClick="@{() -> controller.saveTodo()}"
+            android:onClick="@{() -> viewModel.saveToDo()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/baseline_save_white_24dp" />

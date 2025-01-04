@@ -8,12 +8,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.dieschnittstelle.mobile.android.skeleton.R;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityDetailViewBinding;
 
 import de.thieme.model.ToDo;
 import de.thieme.util.ImageViewUtil;
+import de.thieme.viewmodel.DetailViewViewModel;
 
 public class DetailViewActivity extends AppCompatActivity {
 
@@ -22,29 +24,49 @@ public class DetailViewActivity extends AppCompatActivity {
     protected static final int RESULT_CODE_EDITED_OR_CREATED = 200;
     protected static final int RESULT_CODE_DELETED = 400;
 
+    private DetailViewViewModel viewModel;
+
     TextView expiryTextView;
     ImageView favoriteImageView;
     ListView contactsListView;
-
-    private ToDo todo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_view);
 
-        todo = (ToDo) getIntent().getSerializableExtra(ARG_TODO);
+        // Instantiate or reuse the view model.
+        viewModel = new ViewModelProvider(this).get(DetailViewViewModel.class);
 
-        if (todo == null) {
-            todo = new ToDo();
+        if (viewModel.getToDo() == null) {
+            ToDo todo = (ToDo) getIntent().getSerializableExtra(ARG_TODO);
+
+            if (todo == null) {
+                todo = new ToDo();
+            }
+
+            viewModel.setToDo(todo);
         }
 
+        // Register the activity as observer.
+        viewModel.getToDoValidOnSave().observe(this, valid -> {
+            if (valid) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(ARG_TODO, this.viewModel.getToDo());
+
+                this.setResult(RESULT_CODE_EDITED_OR_CREATED, returnIntent);
+                this.finish();
+            }
+        });
+
+        // Instantiate the view and pass the view model to it.
         ActivityDetailViewBinding binding = DataBindingUtil
                 .setContentView(this, R.layout.activity_detail_view);
-        binding.setController(this);
+        binding.setViewModel(viewModel);
+        binding.setLifecycleOwner(this);
 
-        populateViews(todo);
-        populateContacts(todo);
+        populateViews(this.viewModel.getToDo());
+        populateContacts(this.viewModel.getToDo());
     }
 
     private void populateViews(ToDo todo) {
@@ -70,25 +92,9 @@ public class DetailViewActivity extends AppCompatActivity {
         }
     }
 
-    public ToDo getTodo() {
-        return todo;
-    }
-
-    public void saveTodo() {
-        Intent returnIntent = new Intent();
-
-        // todo.setExpiry(expiryTextView.getText());
-        // todo.setIsFavourite(favoriteImageView.get);
-        // todo.setContacts(contactsListView.ch;
-
-        returnIntent.putExtra(ARG_TODO, todo);
-        this.setResult(RESULT_CODE_EDITED_OR_CREATED, returnIntent);
-        this.finish();
-    }
-
     public void deleteTodo() {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(ARG_TODO, todo);
+        returnIntent.putExtra(ARG_TODO, this.viewModel.getToDo());
 
         this.setResult(RESULT_CODE_DELETED, returnIntent);
         this.finish();
