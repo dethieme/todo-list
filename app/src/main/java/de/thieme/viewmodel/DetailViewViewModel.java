@@ -35,7 +35,6 @@ public class DetailViewViewModel extends ViewModel {
     }
 
     public boolean checkFieldInputInvalid(int keyId) {
-
         if (keyId == EditorInfo.IME_ACTION_NEXT || keyId == EditorInfo.IME_ACTION_DONE) {
             String itemName = toDo.getName();
 

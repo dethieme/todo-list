@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,9 @@ public class ToDo implements Serializable {
     private String name;
     private String description;
     private long expiry;
+    @SerializedName("done")
     private boolean isDone;
+    @SerializedName("favourite")
     private boolean isFavourite;
     // private List<String> contacts = new ArrayList<>();
 

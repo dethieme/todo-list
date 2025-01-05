@@ -19,16 +19,13 @@ import de.thieme.viewmodel.DetailViewViewModel;
 
 public class DetailViewActivity extends AppCompatActivity {
 
-    protected final static String ARG_TODO = "ToDo";
+    protected final static String ARG_TODO = "todo";
 
     protected static final int RESULT_CODE_EDITED_OR_CREATED = 200;
     protected static final int RESULT_CODE_DELETED = 400;
 
     private DetailViewViewModel viewModel;
-
-    TextView expiryTextView;
-    ImageView favoriteImageView;
-    ListView contactsListView;
+    private ListView contactsListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,15 +67,15 @@ public class DetailViewActivity extends AppCompatActivity {
     }
 
     private void populateViews(ToDo todo) {
-        expiryTextView = findViewById(R.id.todoExpiry);
+        TextView expiryTextView = findViewById(R.id.todoExpiry);
         expiryTextView.setText(String.valueOf(todo.getExpiry()));
 
-        favoriteImageView = findViewById(R.id.todoIsFavorite);
+        ImageView favoriteImageView = findViewById(R.id.todoIsFavorite);
         favoriteImageView.setOnClickListener(view -> {
             todo.setIsFavourite(!todo.isFavourite());
-            ImageViewUtil.setFavoriteIcon(favoriteImageView, todo);
+            ImageViewUtil.setFavouriteIcon(favoriteImageView, todo);
         });
-        ImageViewUtil.setFavoriteIcon(favoriteImageView, todo);
+        ImageViewUtil.setFavouriteIcon(favoriteImageView, todo);
     }
 
     private void populateContacts(ToDo todo) {

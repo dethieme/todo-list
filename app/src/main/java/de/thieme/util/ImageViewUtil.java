@@ -6,7 +6,7 @@ import de.thieme.model.ToDo;
 
 abstract public class ImageViewUtil {
 
-    public static void setFavoriteIcon(ImageView imageView, ToDo toDo) {
+    public static void setFavouriteIcon(ImageView imageView, ToDo toDo) {
         imageView.setImageResource(toDo.isFavourite()
                 ? R.drawable.baseline_star_24
                 : R.drawable.baseline_star_border_24);

@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import de.thieme.model.IToDoCRUDOperations;
@@ -17,10 +18,16 @@ public class OverviewViewModel extends ViewModel {
         DONE
     }
 
+    private Comparator<ToDo> SORT_BY_DONE_AND_EXPIRY_AND_FAVOURITE = Comparator.comparing(ToDo::isDone)
+            .thenComparing(ToDo::getExpiry).thenComparing(ToDo::isFavourite);
+    private Comparator<ToDo> SORT_BY_DONE_AND_FAVOURITE_AND_EXPIRY = Comparator.comparing(ToDo::isDone)
+            .thenComparing(ToDo::isFavourite).thenComparing(ToDo::getExpiry);
+
     private boolean initialized;
     private List<ToDo> toDos = new ArrayList<>();
     private IToDoCRUDOperations crudOperations;
     private MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
+    private Comparator<ToDo> currentSortMode = SORT_BY_DONE_AND_EXPIRY_AND_FAVOURITE;
 
     public List<ToDo> getToDos() {
         return toDos;
@@ -52,6 +59,8 @@ public class OverviewViewModel extends ViewModel {
         new Thread(() -> {
             ToDo createdTodo = crudOperations.create(todo);
             getToDos().add(createdTodo);
+
+            doSortTodos();
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
@@ -95,15 +104,35 @@ public class OverviewViewModel extends ViewModel {
                 existingToDo.setContacts(todo.getContacts());
             }
 
+            doSortTodos();
+
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
 
     public void delete(long id) {
-        crudOperations.delete(id);
+        processingState.setValue(ProcessingState.RUNNING);
+
+        new Thread(() -> {
+            crudOperations.delete(id);
+
+            doSortTodos();
+
+            processingState.postValue(ProcessingState.DONE);
+        }).start();
+    }
+
+    public void sortTodos() {
+        processingState.setValue(ProcessingState.RUNNING);
+        doSortTodos();
+        processingState.postValue(ProcessingState.DONE);
+    }
+
+    public void doSortTodos() {
+        getToDos().sort(currentSortMode);
     }
 
     public void switchSortMode() {
-
+        currentSortMode = SORT_BY_DONE_AND_EXPIRY_AND_FAVOURITE;
     }
 }
