@@ -66,7 +66,7 @@ public class OverviewActivity extends AppCompatActivity {
         }
 
         if (((ToDoApplication) getApplication()).isOffline()) {
-            showMessage("Backend cannot be accessed. Use local CRUD operations.");
+            showMessage("Applikation ist offline.");
         }
 
         // Handle the progress bar.
@@ -125,10 +125,13 @@ public class OverviewActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sortTodos) {
-            this.viewModel.sortTodos();
             this.viewModel.switchSortMode();
             return true;
         } else if (item.getItemId() == R.id.deleteAllLocalTodos) {
+            return true;
+        } else if (item.getItemId() == R.id.deleteAllRemoteTodos) {
+            return true;
+        } else if (item.getItemId() == R.id.synchronizeTodos) {
             return true;
         } else {
             return super.onOptionsItemSelected(item);

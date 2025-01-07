@@ -1,11 +1,18 @@
 package de.thieme.view;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -66,6 +73,27 @@ public class DetailViewActivity extends AppCompatActivity {
         populateContacts(this.viewModel.getToDo());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_detail_view_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.selectContact) {
+            selectContact();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void selectContact() {
+        Intent selectContactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        selectContactLauncher.launch(selectContactIntent);
+    }
+
     private void populateViews(ToDo todo) {
         TextView expiryTextView = findViewById(R.id.todoExpiry);
         expiryTextView.setText(String.valueOf(todo.getExpiry()));
@@ -96,4 +124,16 @@ public class DetailViewActivity extends AppCompatActivity {
         this.setResult(RESULT_CODE_DELETED, returnIntent);
         this.finish();
     }
+
+    protected ActivityResultLauncher<Intent> selectContactLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    ToDo newTodo = (ToDo) result.getData().getSerializableExtra(DetailViewActivity.ARG_TODO);
+                    selectContact();
+                } else {
+
+                }
+            }
+    );
 }

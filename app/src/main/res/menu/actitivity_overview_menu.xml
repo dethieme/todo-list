@@ -12,4 +12,12 @@
         android:id="@+id/deleteAllLocalTodos"
         android:title="Lokale Einträge löschen"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/deleteAllRemoteTodos"
+        android:title="Remote-Einträge löschen"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/synchronizeTodos"
+        android:title="Synchronisieren"
+        app:showAsAction="never" />
 </menu>

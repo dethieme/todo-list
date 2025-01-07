@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,29 +13,30 @@ import de.thieme.model.ToDo;
 
 public class OverviewViewModel extends ViewModel {
 
-    public static enum ProcessingState {
+    public enum ProcessingState {
         RUNNING_LONG,
         RUNNING,
         DONE
     }
 
-    private Comparator<ToDo> SORT_BY_DONE_AND_EXPIRY_AND_FAVOURITE = Comparator.comparing(ToDo::isDone)
-            .thenComparing(ToDo::getExpiry).thenComparing(ToDo::isFavourite);
-    private Comparator<ToDo> SORT_BY_DONE_AND_FAVOURITE_AND_EXPIRY = Comparator.comparing(ToDo::isDone)
-            .thenComparing(ToDo::isFavourite).thenComparing(ToDo::getExpiry);
+    private final Comparator<ToDo> SORT_BY_EXPIRY_AND_FAVOURITE =
+            Comparator.comparing(ToDo::isDone)
+            .thenComparing(ToDo::getExpiry)
+            .thenComparing(ToDo::isFavourite);
+
+    private final Comparator<ToDo> SORT_BY_FAVOURITE_AND_EXPIRY =
+            Comparator.comparing(ToDo::isDone)
+            .thenComparing(ToDo::isFavourite, Comparator.reverseOrder())
+            .thenComparing(ToDo::getExpiry);
 
     private boolean initialized;
     private List<ToDo> toDos = new ArrayList<>();
     private IToDoCRUDOperations crudOperations;
     private MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
-    private Comparator<ToDo> currentSortMode = SORT_BY_DONE_AND_EXPIRY_AND_FAVOURITE;
+    private Comparator<ToDo> currentSortMode = SORT_BY_EXPIRY_AND_FAVOURITE;
 
     public List<ToDo> getToDos() {
         return toDos;
-    }
-
-    public void setToDos(List<ToDo> toDos) {
-        this.toDos = toDos;
     }
 
     public boolean isInitialized() {
@@ -60,7 +62,7 @@ public class OverviewViewModel extends ViewModel {
             ToDo createdTodo = crudOperations.create(todo);
             getToDos().add(createdTodo);
 
-            doSortTodos();
+            sortTodos();
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
@@ -77,13 +79,10 @@ public class OverviewViewModel extends ViewModel {
 
             List<ToDo> todos = crudOperations.readAll();
             getToDos().addAll(todos);
+            sortTodos();
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
-    }
-
-    public void read(long id) {
-        getToDos().stream().filter(toDo -> toDo.getId() == id).findFirst().get();
     }
 
     public void update(ToDo todo) {
@@ -104,7 +103,7 @@ public class OverviewViewModel extends ViewModel {
                 existingToDo.setContacts(todo.getContacts());
             }
 
-            doSortTodos();
+            sortTodos();
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
@@ -115,24 +114,24 @@ public class OverviewViewModel extends ViewModel {
 
         new Thread(() -> {
             crudOperations.delete(id);
-
-            doSortTodos();
+            getToDos().removeIf(todo -> todo.getId() == id);
+            sortTodos();
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
 
     public void sortTodos() {
-        processingState.setValue(ProcessingState.RUNNING);
-        doSortTodos();
-        processingState.postValue(ProcessingState.DONE);
-    }
-
-    public void doSortTodos() {
         getToDos().sort(currentSortMode);
     }
 
     public void switchSortMode() {
-        currentSortMode = SORT_BY_DONE_AND_EXPIRY_AND_FAVOURITE;
+        if (currentSortMode == SORT_BY_EXPIRY_AND_FAVOURITE) {
+            currentSortMode = SORT_BY_FAVOURITE_AND_EXPIRY;
+        } else {
+            currentSortMode = SORT_BY_EXPIRY_AND_FAVOURITE;
+        }
+
+        sortTodos();
     }
 }
