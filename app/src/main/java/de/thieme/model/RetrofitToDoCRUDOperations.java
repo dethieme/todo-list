@@ -1,7 +1,5 @@
 package de.thieme.model;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -81,5 +79,10 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void synchronize() {
+       // not implementation
     }
 }

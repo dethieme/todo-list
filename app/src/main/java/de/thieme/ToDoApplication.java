@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import de.thieme.model.IToDoCRUDOperations;
 import de.thieme.model.RetrofitToDoCRUDOperations;
 import de.thieme.model.RoomToDoCRUDOperations;
+import de.thieme.model.SyncedToDoCRUDOperations;
 
 public class ToDoApplication extends Application {
 
@@ -49,13 +50,16 @@ public class ToDoApplication extends Application {
         CompletableFuture<IToDoCRUDOperations> future = new CompletableFuture<>();
 
         new Thread(() -> {
-           if (isBackendAccessible()) {
-               this.crudOperations = new RetrofitToDoCRUDOperations();
-           } else {
-               this.crudOperations = new RoomToDoCRUDOperations(this);
-           }
+            if (isBackendAccessible()) {
+                RoomToDoCRUDOperations localCrud = new RoomToDoCRUDOperations(this);
+                RetrofitToDoCRUDOperations remoteCrud = new RetrofitToDoCRUDOperations();
 
-           future.complete(this.crudOperations);
+                this.crudOperations = new SyncedToDoCRUDOperations(localCrud, remoteCrud);
+            } else {
+                this.crudOperations = new RoomToDoCRUDOperations(this);
+            }
+
+            future.complete(this.crudOperations);
         }).start();
 
         return future;

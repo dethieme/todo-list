@@ -2,8 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/selectContact"
-        android:icon="@drawable/contacts"
-        android:title="Kontakt auswählen"
+        android:id="@+id/addContact"
+        android:icon="@drawable/baseline_contacts_white_24dp"
+        android:title="Kontakt hinzufügen"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/deleteTodo"
+        android:icon="@drawable/delete_24dp"
+        android:title="To Do löschen"
         app:showAsAction="always" />
 </menu>

@@ -8,4 +8,5 @@ public interface IToDoCRUDOperations {
     ToDo read(long id);
     boolean update(ToDo todo);
     boolean delete(long id);
+    void synchronize();
 }

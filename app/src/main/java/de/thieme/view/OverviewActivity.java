@@ -94,7 +94,7 @@ public class OverviewActivity extends AppCompatActivity {
             viewModel.setInitialized(true);
         }
 
-        todoListViewAdapter = new ToDoAdapter(this, viewModel.getToDos());
+        todoListViewAdapter = new ToDoAdapter(this, viewModel.getTodos());
         todoListView = findViewById(R.id.todoListView);
         todoListView.setAdapter(todoListViewAdapter);
 
@@ -128,10 +128,15 @@ public class OverviewActivity extends AppCompatActivity {
             this.viewModel.switchSortMode();
             return true;
         } else if (item.getItemId() == R.id.deleteAllLocalTodos) {
+            //deleteAllLocalTodos();
             return true;
         } else if (item.getItemId() == R.id.deleteAllRemoteTodos) {
+            //deleteAllRemoteTodos();
             return true;
         } else if (item.getItemId() == R.id.synchronizeTodos) {
+            if (!((ToDoApplication) getApplication()).isOffline()) {
+
+            }
             return true;
         } else {
             return super.onOptionsItemSelected(item);

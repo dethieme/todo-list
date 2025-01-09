@@ -1,10 +1,11 @@
 package de.thieme.viewmodel;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,13 +31,13 @@ public class OverviewViewModel extends ViewModel {
             .thenComparing(ToDo::getExpiry);
 
     private boolean initialized;
-    private List<ToDo> toDos = new ArrayList<>();
+    private List<ToDo> todos = new ArrayList<>();
     private IToDoCRUDOperations crudOperations;
     private MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private Comparator<ToDo> currentSortMode = SORT_BY_EXPIRY_AND_FAVOURITE;
 
-    public List<ToDo> getToDos() {
-        return toDos;
+    public List<ToDo> getTodos() {
+        return todos;
     }
 
     public boolean isInitialized() {
@@ -60,7 +61,7 @@ public class OverviewViewModel extends ViewModel {
 
         new Thread(() -> {
             ToDo createdTodo = crudOperations.create(todo);
-            getToDos().add(createdTodo);
+            getTodos().add(createdTodo);
 
             sortTodos();
 
@@ -78,7 +79,8 @@ public class OverviewViewModel extends ViewModel {
             }
 
             List<ToDo> todos = crudOperations.readAll();
-            getToDos().addAll(todos);
+            Log.i("mama", String.valueOf(todos.size()));
+            getTodos().addAll(todos);
             sortTodos();
 
             processingState.postValue(ProcessingState.DONE);
@@ -92,8 +94,8 @@ public class OverviewViewModel extends ViewModel {
             boolean updated = crudOperations.update(todo);
 
             if (updated) {
-                int todoPosition = getToDos().indexOf(todo);
-                ToDo existingToDo = getToDos().get(todoPosition);
+                int todoPosition = getTodos().indexOf(todo);
+                ToDo existingToDo = getTodos().get(todoPosition);
 
                 existingToDo.setName(todo.getName());
                 existingToDo.setDescription(todo.getDescription());
@@ -114,15 +116,15 @@ public class OverviewViewModel extends ViewModel {
 
         new Thread(() -> {
             crudOperations.delete(id);
-            getToDos().removeIf(todo -> todo.getId() == id);
+            getTodos().removeIf(todo -> todo.getId() == id);
             sortTodos();
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
 
-    public void sortTodos() {
-        getToDos().sort(currentSortMode);
+    private void sortTodos() {
+        getTodos().sort(currentSortMode);
     }
 
     public void switchSortMode() {

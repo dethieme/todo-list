@@ -73,7 +73,16 @@ public class RoomToDoCRUDOperations implements IToDoCRUDOperations {
 
     @Override
     public boolean delete(long id) {
-        readAll().stream().filter(toDo -> toDo.getId() == id).findFirst().get();
-        return false;
+        readAll().stream()
+                .filter(toDo -> toDo.getId() == id)
+                .findFirst()
+                .ifPresent(toDo -> database.getDao().deleteTodo(toDo));
+
+        return true;
+    }
+
+    @Override
+    public void synchronize() {
+        // not implementation
     }
 }
