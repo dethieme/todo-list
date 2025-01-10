@@ -41,7 +41,6 @@ public class DetailViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_view);
 
         // Instantiate or reuse the view model.
         viewModel = new ViewModelProvider(this).get(DetailViewViewModel.class);

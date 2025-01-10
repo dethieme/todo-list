@@ -31,11 +31,6 @@ public class ToDo implements Serializable {
     // Default constructor required for Room
     public ToDo() {}
 
-    public ToDo(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
-
     public long getId() {
         return this.id;
     }

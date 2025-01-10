@@ -67,6 +67,11 @@ public class OverviewActivity extends AppCompatActivity {
 
         if (((ToDoApplication) getApplication()).isOffline()) {
             showMessage("Applikation ist offline.");
+        } else {
+            Intent overviewIntent = new Intent(this, LoginActivity.class);
+            startActivity(overviewIntent);
+            finish();
+            return;
         }
 
         // Handle the progress bar.
