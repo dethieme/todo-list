@@ -14,8 +14,6 @@ public class SyncedToDoCRUDOperations implements IToDoCRUDOperations {
     public SyncedToDoCRUDOperations(RoomToDoCRUDOperations roomToDoCRUDOperations, RetrofitToDoCRUDOperations retrofitToDoCRUDOperations) {
         this.localCRUD = roomToDoCRUDOperations;
         this.remoteCRUD = retrofitToDoCRUDOperations;
-
-        synchronize();
     }
 
     @Override
@@ -60,11 +58,7 @@ public class SyncedToDoCRUDOperations implements IToDoCRUDOperations {
             List<ToDo> localTodos = localCRUD.readAll();
 
             if (!localTodos.isEmpty()) {
-                List<ToDo> remoteTodos = remoteCRUD.readAll();
-
-                for (ToDo remoteTodo : remoteTodos) {
-                    remoteCRUD.delete(remoteTodo.getId());
-                }
+                deleteAllRemoteTodos();
 
                 for (ToDo localTodo : localTodos) {
                     remoteCRUD.create(localTodo);
@@ -81,7 +75,25 @@ public class SyncedToDoCRUDOperations implements IToDoCRUDOperations {
                 Log.d(LOG_TAG, "Synchronisierung abgeschlossen: Remote-To Dos wurden in lokale Datenbank übertragen.");
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Fehler bei der Synchronisierung der Todos: " + e.getMessage(), e);
+            Log.e(LOG_TAG, "Fehler bei Synchronisierung: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteAllLocalTodos() {
+        List<ToDo> localTodos = localCRUD.readAll();
+
+        for (ToDo localTodo : localTodos) {
+            localCRUD.delete(localTodo.getId());
+        }
+    }
+
+    @Override
+    public void deleteAllRemoteTodos() {
+        List<ToDo> remoteTodos = remoteCRUD.readAll();
+
+        for (ToDo remoteTodo : remoteTodos) {
+            remoteCRUD.delete(remoteTodo.getId());
         }
     }
 }

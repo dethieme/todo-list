@@ -55,6 +55,7 @@ public class ToDoApplication extends Application {
                 RetrofitToDoCRUDOperations remoteCrud = new RetrofitToDoCRUDOperations();
 
                 this.crudOperations = new SyncedToDoCRUDOperations(localCrud, remoteCrud);
+                this.crudOperations.synchronize();
             } else {
                 this.crudOperations = new RoomToDoCRUDOperations(this);
             }

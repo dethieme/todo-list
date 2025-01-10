@@ -9,4 +9,6 @@ public interface IToDoCRUDOperations {
     boolean update(ToDo todo);
     boolean delete(long id);
     void synchronize();
+    void deleteAllLocalTodos();
+    void deleteAllRemoteTodos();
 }

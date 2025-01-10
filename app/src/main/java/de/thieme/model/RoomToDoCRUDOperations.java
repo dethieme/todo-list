@@ -83,6 +83,16 @@ public class RoomToDoCRUDOperations implements IToDoCRUDOperations {
 
     @Override
     public void synchronize() {
-        // not implementation
+        // no implementation
+    }
+
+    @Override
+    public void deleteAllLocalTodos() {
+        readAll().forEach(todo -> delete(todo.getId()));
+    }
+
+    @Override
+    public void deleteAllRemoteTodos() {
+        // no implementation
     }
 }

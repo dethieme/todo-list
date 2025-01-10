@@ -83,6 +83,16 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
 
     @Override
     public void synchronize() {
-       // not implementation
+       // no implementation
+    }
+
+    @Override
+    public void deleteAllLocalTodos() {
+        // no implementation
+    }
+
+    @Override
+    public void deleteAllRemoteTodos() {
+        readAll().forEach(todo -> delete(todo.getId()));
     }
 }

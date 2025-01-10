@@ -14,6 +14,8 @@ import de.thieme.model.ToDo;
 
 public class OverviewViewModel extends ViewModel {
 
+    private static final String LOG_TAG = OverviewViewModel.class.getSimpleName();
+
     public enum ProcessingState {
         RUNNING_LONG,
         RUNNING,
@@ -22,13 +24,13 @@ public class OverviewViewModel extends ViewModel {
 
     private final Comparator<ToDo> SORT_BY_EXPIRY_AND_FAVOURITE =
             Comparator.comparing(ToDo::isDone)
-            .thenComparing(ToDo::getExpiry)
-            .thenComparing(ToDo::isFavourite);
+                    .thenComparing(ToDo::getExpiry)
+                    .thenComparing(ToDo::isFavourite);
 
     private final Comparator<ToDo> SORT_BY_FAVOURITE_AND_EXPIRY =
             Comparator.comparing(ToDo::isDone)
-            .thenComparing(ToDo::isFavourite, Comparator.reverseOrder())
-            .thenComparing(ToDo::getExpiry);
+                    .thenComparing(ToDo::isFavourite, Comparator.reverseOrder())
+                    .thenComparing(ToDo::getExpiry);
 
     private boolean initialized;
     private List<ToDo> todos = new ArrayList<>();
@@ -63,14 +65,12 @@ public class OverviewViewModel extends ViewModel {
             ToDo createdTodo = crudOperations.create(todo);
             getTodos().add(createdTodo);
 
-            sortTodos();
-
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
 
     public void readAll() {
-        processingState.setValue(ProcessingState.RUNNING_LONG);
+        processingState.postValue(ProcessingState.RUNNING_LONG);
 
         new Thread(() -> {
             try {
@@ -79,9 +79,7 @@ public class OverviewViewModel extends ViewModel {
             }
 
             List<ToDo> todos = crudOperations.readAll();
-            Log.i("mama", String.valueOf(todos.size()));
             getTodos().addAll(todos);
-            sortTodos();
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
@@ -91,9 +89,7 @@ public class OverviewViewModel extends ViewModel {
         processingState.setValue(ProcessingState.RUNNING);
 
         new Thread(() -> {
-            boolean updated = crudOperations.update(todo);
-
-            if (updated) {
+            if (crudOperations.update(todo)) {
                 int todoPosition = getTodos().indexOf(todo);
                 ToDo existingToDo = getTodos().get(todoPosition);
 
@@ -105,8 +101,6 @@ public class OverviewViewModel extends ViewModel {
                 existingToDo.setContacts(todo.getContacts());
             }
 
-            sortTodos();
-
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
@@ -115,25 +109,59 @@ public class OverviewViewModel extends ViewModel {
         processingState.setValue(ProcessingState.RUNNING);
 
         new Thread(() -> {
-            crudOperations.delete(id);
-            getTodos().removeIf(todo -> todo.getId() == id);
-            sortTodos();
+            if (crudOperations.delete(id)) {
+                getTodos().removeIf(todo -> todo.getId() == id);
+            }
 
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
 
-    private void sortTodos() {
+    public void sortTodos() {
         getTodos().sort(currentSortMode);
     }
 
     public void switchSortMode() {
         if (currentSortMode == SORT_BY_EXPIRY_AND_FAVOURITE) {
             currentSortMode = SORT_BY_FAVOURITE_AND_EXPIRY;
+            Log.i(LOG_TAG, "Switched sort mode to favourite and then expiry.");
         } else {
             currentSortMode = SORT_BY_EXPIRY_AND_FAVOURITE;
+            Log.i(LOG_TAG, "Switched sort mode to expiry and then favourite.");
         }
 
         sortTodos();
+    }
+
+    public void synchronizeTodos() {
+        processingState.setValue(ProcessingState.RUNNING_LONG);
+
+        new Thread(() -> {
+            crudOperations.synchronize();
+            getTodos().clear();
+            getTodos().addAll(crudOperations.readAll());
+
+            processingState.postValue(ProcessingState.DONE);
+        }).start();
+    }
+
+    public void deleteAllLocalTodos() {
+        processingState.setValue(ProcessingState.RUNNING);
+
+        new Thread(() -> {
+            crudOperations.deleteAllLocalTodos();
+            getTodos().clear();
+
+            processingState.postValue(ProcessingState.DONE);
+        }).start();
+    }
+
+    public void deleteAllRemoteTodos() {
+        processingState.setValue(ProcessingState.RUNNING);
+
+        new Thread(() -> {
+            crudOperations.deleteAllRemoteTodos();
+            processingState.postValue(ProcessingState.DONE);
+        }).start();
     }
 }

@@ -82,6 +82,7 @@ public class OverviewActivity extends AppCompatActivity {
                     break;
                 case DONE:
                     progressBar.setVisibility(View.GONE);
+                    viewModel.sortTodos();
                     todoListViewAdapter.notifyDataSetChanged();
                     break;
                 default:
@@ -126,17 +127,16 @@ public class OverviewActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sortTodos) {
             this.viewModel.switchSortMode();
+            todoListViewAdapter.notifyDataSetChanged();
             return true;
         } else if (item.getItemId() == R.id.deleteAllLocalTodos) {
-            //deleteAllLocalTodos();
+            this.viewModel.deleteAllLocalTodos();
             return true;
         } else if (item.getItemId() == R.id.deleteAllRemoteTodos) {
-            //deleteAllRemoteTodos();
+            this.viewModel.deleteAllRemoteTodos();
             return true;
         } else if (item.getItemId() == R.id.synchronizeTodos) {
-            if (!((ToDoApplication) getApplication()).isOffline()) {
-
-            }
+            this.viewModel.synchronizeTodos();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -213,8 +213,12 @@ public class OverviewActivity extends AppCompatActivity {
 
             // Reuse recyclableToDoView or inflate new view
             if (recyclableToDoView == null) {
-                binding = DataBindingUtil
-                        .inflate(LayoutInflater.from(getContext()), R.layout.item_todo, null, false);
+                binding = DataBindingUtil.inflate(
+                        LayoutInflater.from(getContext()),
+                        R.layout.item_todo,
+                        null,
+                        false
+                );
                 todoListView = binding.getRoot();
                 todoListView.setTag(binding);
             } else {
