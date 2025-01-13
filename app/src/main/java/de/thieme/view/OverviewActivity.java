@@ -4,11 +4,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.icu.text.SimpleDateFormat;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,26 +17,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import org.dieschnittstelle.mobile.android.skeleton.R;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ItemTodoBinding;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import de.thieme.ToDoApplication;
 import de.thieme.model.IToDoCRUDOperations;
 import de.thieme.model.ToDo;
-import de.thieme.util.ImageViewUtil;
 import de.thieme.viewmodel.OverviewViewModel;
 
 public class OverviewActivity extends AppCompatActivity {
@@ -68,10 +61,7 @@ public class OverviewActivity extends AppCompatActivity {
         if (((ToDoApplication) getApplication()).isOffline()) {
             showMessage("Applikation ist offline.");
         } else {
-            Intent overviewIntent = new Intent(this, LoginActivity.class);
-            startActivity(overviewIntent);
-            finish();
-            return;
+            loginViewLauncher.launch(new Intent(OverviewActivity.this, LoginActivity.class));
         }
 
         // Handle the progress bar.
@@ -148,21 +138,12 @@ public class OverviewActivity extends AppCompatActivity {
         }
     }
 
-    @BindingAdapter("formattedDate")
-    public static void setFormattedDate(TextView textView, long timestamp) {
-        if (timestamp > 0) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-            String formattedDate = sdf.format(new Date(timestamp));
-            textView.setText(formattedDate);
-        } else {
-            textView.setText("");
-        }
-    }
-
-    @BindingAdapter("favoriteIcon")
-    public static void setFavoriteIcon(ImageView imageView, ToDo todo) {
-        ImageViewUtil.setFavouriteIcon(imageView, todo);
-    }
+    protected ActivityResultLauncher<Intent> loginViewLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                showMessage("Eingeloggt");
+            }
+    );
 
     protected ActivityResultLauncher<Intent> detailViewForCreateLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -237,7 +218,6 @@ public class OverviewActivity extends AppCompatActivity {
 
             binding.todoIsFavorite.setOnClickListener(view -> {
                 todo.setIsFavourite(!todo.isFavourite());
-                ImageViewUtil.setFavouriteIcon(binding.todoIsFavorite, todo);
                 viewModel.update(todo);
             });
 

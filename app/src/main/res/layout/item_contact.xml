@@ -15,38 +15,15 @@
         android:layout_height="match_parent"
         android:padding="8dp">
 
-        <CheckBox
-            android:id="@+id/todoIsDone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="@={todo.isDone}"
-            android:focusable="false"
-            android:onClick="@{() -> viewmodel.update(todo)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
-            android:id="@+id/todoName"
+            android:id="@+id/contactName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="@{todo.name}"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/todoIsDone"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/todoExpiry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:textSize="16sp"
-            app:formattedDate="@{todo.expiry}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/todoIsFavorite"
+            app:layout_constraintLeft_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -54,10 +31,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/baseline_star_border_24"
-            app:favoriteIcon="@{todo.favourite}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/todoName" />
+            app:layout_constraintTop_toTopOf="@+id/contactName" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

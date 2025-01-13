@@ -28,6 +28,10 @@ public class LoginViewModel extends ViewModel {
         return loginSuccessful;
     }
 
+    public MutableLiveData<String> getCredentialsErrorStatus() {
+        return credentialsErrorStatus;
+    }
+
     public MutableLiveData<String> getPasswordErrorStatus() {
         return passwordErrorStatus;
     }
@@ -52,12 +56,21 @@ public class LoginViewModel extends ViewModel {
         this.password = password;
     }
 
-    public boolean checkFieldInputsInvalid(int keyId) {
+    public boolean checkEmailFieldInputInvalid(int keyId) {
         if (keyId == EditorInfo.IME_ACTION_NEXT || keyId == EditorInfo.IME_ACTION_DONE) {
             if (email.isBlank() || !PatternsCompat.EMAIL_ADDRESS.matcher(email).matches()) {
                 this.emailErrorStatus.setValue("Ungültige E-Mail.");
             }
 
+            validateLoginButtonState();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean checkPasswordFieldInputInvalid(int keyId) {
+        if (keyId == EditorInfo.IME_ACTION_DONE) {
             if (password.length() != 6) {
                 this.passwordErrorStatus.setValue("Passwort zu kurz.");
             }
@@ -71,12 +84,14 @@ public class LoginViewModel extends ViewModel {
 
     public boolean onEmailFieldInputChanged() {
         emailErrorStatus.setValue(null);
+        credentialsErrorStatus.setValue(null);
         validateLoginButtonState();
         return true;
     }
 
     public boolean onPasswordFieldInputChanged() {
         passwordErrorStatus.setValue(null);
+        credentialsErrorStatus.setValue(null);
         validateLoginButtonState();
         return true;
     }
@@ -91,7 +106,7 @@ public class LoginViewModel extends ViewModel {
         if (email.equals("de.thieme@ostfalia.de") && password.equals("123456")) {
             loginSuccessful.setValue(true);
         } else {
-            passwordErrorStatus.setValue("Ungültige Anmeldedaten.");
+            credentialsErrorStatus.setValue("Ungültige Anmeldedaten.");
             loginSuccessful.setValue(false);
         }
     }

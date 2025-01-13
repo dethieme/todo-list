@@ -3,12 +3,12 @@ package de.thieme.model;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity(tableName = "to_dos")
@@ -21,12 +21,16 @@ public class ToDo implements Serializable {
 
     private String name;
     private String description;
-    private long expiry;
+    private long expiry = System.currentTimeMillis();
+
     @SerializedName("done")
     private boolean isDone;
+
     @SerializedName("favourite")
     private boolean isFavourite;
-    // private List<String> contacts = new ArrayList<>();
+
+    @TypeConverters(RoomToDoCRUDOperations.ListConverters.class)
+    private ArrayList<String> contacts = new ArrayList<>();
 
     // Default constructor required for Room
     public ToDo() {}
@@ -55,12 +59,10 @@ public class ToDo implements Serializable {
         this.description = description;
     }
 
-    // Get expiry as Date
     public long getExpiry() {
         return expiry;
     }
 
-    // Set expiry from Date
     public void setExpiry(long expiry) {
         this.expiry = expiry;
     }
@@ -81,12 +83,20 @@ public class ToDo implements Serializable {
         this.isFavourite = isFavourite;
     }
 
-    public List<String> getContacts() {
-        return new ArrayList<>();
+    public ArrayList<String> getContacts() {
+        if (contacts == null) {
+            this.contacts = new ArrayList<>();
+        }
+
+        return contacts;
     }
 
-    public void setContacts(List<String> contacts) {
-        // this.contacts = contacts;
+    public void setContacts(ArrayList<String> contacts) {
+        if (contacts == null) {
+            return;
+        }
+
+        this.contacts = contacts;
     }
 
     @Override

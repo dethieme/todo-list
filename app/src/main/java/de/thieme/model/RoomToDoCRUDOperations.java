@@ -9,11 +9,38 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverter;
 import androidx.room.Update;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RoomToDoCRUDOperations implements IToDoCRUDOperations {
+
+    public static class ListConverters {
+
+        public static String SEPARATOR = ";;;";
+
+        @TypeConverter
+        public static ArrayList<String> fromString(String value) {
+            if (value == null || value.trim().isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            return new ArrayList<>(Arrays.asList(value.split(SEPARATOR)));
+        }
+
+        @TypeConverter
+        public static String fromList(ArrayList<String> values) {
+            if (values == null) {
+                return "";
+            }
+
+            return values.stream().collect(Collectors.joining(SEPARATOR));
+        }
+    }
 
     @Dao
     public static interface SQLiteToDoCRUDOperations {
@@ -42,7 +69,7 @@ public class RoomToDoCRUDOperations implements IToDoCRUDOperations {
 
     public RoomToDoCRUDOperations(Context context) {
         database = Room.databaseBuilder(
-                context.getApplicationContext(),
+                        context.getApplicationContext(),
                         ToDoDatabase.class,
                         "todos-db")
                 .build();

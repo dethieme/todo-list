@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
             name="viewModel"
             type="de.thieme.viewmodel.DetailViewViewModel" />
@@ -13,14 +14,35 @@
         android:layout_height="match_parent"
         android:padding="16dp">
 
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/todoIsDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-4dp"
+            android:checked="@={viewModel.toDo.isDone}"
+            android:text="@string/done"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/todoIsFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/favorite_icon"
+            app:favoriteIcon="@{viewModel.toDo.favourite}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="@+id/todoIsDone"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/todoName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:error="@{viewModel.errorStatus}"
             android:hint="@string/name"
             app:hintEnabled="true"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/todoIsDone">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -31,31 +53,13 @@
                 android:text="@={viewModel.toDo.name}" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <ImageView
-            android:id="@+id/todoIsFavorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/favorite_icon"
-            android:src="@drawable/baseline_star_border_24"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/todoName" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/todoIsDone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="@={viewModel.toDo.isDone}"
-            android:text="@string/done"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/todoName" />
-
         <TextView
             android:id="@+id/todoExpiry"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
             android:layout_marginTop="8dp"
+            android:text="@{viewModel.dateHelper.dayOfMonth + `.` + viewModel.dateHelper.month + `.` + viewModel.dateHelper.year}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/todoName" />
 
@@ -63,10 +67,10 @@
             android:id="@+id/toDoDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:hint="@string/description"
             app:hintEnabled="true"
-            app:layout_constraintTop_toBottomOf="@id/todoIsDone">
+            app:layout_constraintTop_toBottomOf="@id/todoExpiry">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -84,7 +88,6 @@
             android:layout_marginTop="18dp"
             android:text="@string/contacts"
             android:textSize="16sp"
-            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toDoDescription" />
 

@@ -1,7 +1,7 @@
 package de.thieme.view;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -11,8 +11,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.DatePicker;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -24,8 +23,11 @@ import androidx.lifecycle.ViewModelProvider;
 import org.dieschnittstelle.mobile.android.skeleton.R;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityDetailViewBinding;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import de.thieme.model.ToDo;
-import de.thieme.util.ImageViewUtil;
+import de.thieme.util.BindingUtils;
 import de.thieme.viewmodel.DetailViewViewModel;
 
 public class DetailViewActivity extends AppCompatActivity {
@@ -35,7 +37,6 @@ public class DetailViewActivity extends AppCompatActivity {
     protected static final int RESULT_CODE_DELETED = 400;
 
     private static final int REQUEST_CONTACT_PERMISSIONS = 42;
-
     private DetailViewViewModel viewModel;
 
     @Override
@@ -72,19 +73,10 @@ public class DetailViewActivity extends AppCompatActivity {
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(this);
 
-        populateViews(this.viewModel.getToDo());
-    }
-
-    private void populateViews(ToDo todo) {
-        TextView expiryTextView = findViewById(R.id.todoExpiry);
-        expiryTextView.setText(String.valueOf(todo.getExpiry()));
-
-        ImageView favoriteImageView = findViewById(R.id.todoIsFavorite);
-        favoriteImageView.setOnClickListener(view -> {
-            todo.setIsFavourite(!todo.isFavourite());
-            ImageViewUtil.setFavouriteIcon(favoriteImageView, todo);
+        binding.todoIsFavorite.setOnClickListener(view -> {
+            viewModel.getToDo().setIsFavourite(!viewModel.getToDo().isFavourite());
+            BindingUtils.setFavoriteIcon(binding.todoIsFavorite, viewModel.getToDo().isFavourite());
         });
-        ImageViewUtil.setFavouriteIcon(favoriteImageView, todo);
     }
 
     @Override
@@ -98,12 +90,30 @@ public class DetailViewActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.addContact) {
             addContact();
             return true;
+        } else if (item.getItemId() == R.id.selectDate) {
+            showDatePickerDialog();
+            return true;
         } else if (item.getItemId() == R.id.deleteTodo) {
             deleteTodo();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showDatePickerDialog() {
+        Calendar currentExpiry = Calendar.getInstance();
+        currentExpiry.setTimeInMillis(this.viewModel.getToDo().getExpiry());
+
+        new DatePickerDialog(
+                this,
+                (datePicker, year, month, day) -> {
+                    viewModel.getDateHelper().getValue().setDate(year, month, day);
+                },
+                currentExpiry.get(Calendar.YEAR),
+                currentExpiry.get(Calendar.MONTH),
+                currentExpiry.get(Calendar.DAY_OF_MONTH)
+        ).show();
     }
 
     public void deleteTodo() {
@@ -135,9 +145,11 @@ public class DetailViewActivity extends AppCompatActivity {
                 .query(contactUri, null, null, null, null);
 
         if (cursor.moveToFirst()) {
-            int internalContactIdColumnIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID);
-            long internalContactId = cursor.getLong(internalContactIdColumnIndex);
+            int columnIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID);
+            long internalContactId = cursor.getLong(columnIndex);
             readContactDetailsForInternalId(internalContactId);
+
+            this.viewModel.getToDo().getContacts().add(String.valueOf(internalContactId));
         }
 
         cursor.close();
