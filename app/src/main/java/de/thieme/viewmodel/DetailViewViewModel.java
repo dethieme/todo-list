@@ -22,7 +22,8 @@ public class DetailViewViewModel extends ViewModel {
 
         public void setDate(int year, int month, int dayOfMonth) {
             calendar.set(year, month, dayOfMonth);
-            getToDo().setExpiry(calendar.getTimeInMillis());
+            toDo.setExpiry(calendar.getTimeInMillis());
+            dateHelper.setValue(this);
         }
 
         public int getDayOfMonth() {
