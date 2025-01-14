@@ -2,6 +2,8 @@ package de.thieme.view;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -9,9 +11,16 @@ import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.ListView;
+import android.widget.TimePicker;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -22,9 +31,12 @@ import androidx.lifecycle.ViewModelProvider;
 
 import org.dieschnittstelle.mobile.android.skeleton.R;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityDetailViewBinding;
+import org.dieschnittstelle.mobile.android.skeleton.databinding.ItemContactBinding;
+import org.dieschnittstelle.mobile.android.skeleton.databinding.ItemTodoBinding;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import de.thieme.model.ToDo;
 import de.thieme.util.BindingUtils;
@@ -38,6 +50,8 @@ public class DetailViewActivity extends AppCompatActivity {
 
     private static final int REQUEST_CONTACT_PERMISSIONS = 42;
     private DetailViewViewModel viewModel;
+    private ContactAdapter contactListViewAdapter;
+    private ListView contactListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +91,12 @@ public class DetailViewActivity extends AppCompatActivity {
             viewModel.getToDo().setIsFavourite(!viewModel.getToDo().isFavourite());
             BindingUtils.setFavoriteIcon(binding.todoIsFavorite, viewModel.getToDo().isFavourite());
         });
+        binding.todoExpiry.setOnClickListener(view -> {
+            showDatePickerDialog();
+        });
+
+        contactListViewAdapter = new ContactAdapter(this, viewModel.getToDo().getContacts());
+        binding.contactListView.setAdapter(contactListViewAdapter);
     }
 
     @Override
@@ -90,9 +110,6 @@ public class DetailViewActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.addContact) {
             addContact();
             return true;
-        } else if (item.getItemId() == R.id.selectDate) {
-            showDatePickerDialog();
-            return true;
         } else if (item.getItemId() == R.id.deleteTodo) {
             deleteTodo();
             return true;
@@ -102,17 +119,24 @@ public class DetailViewActivity extends AppCompatActivity {
     }
 
     private void showDatePickerDialog() {
-        Calendar currentExpiry = Calendar.getInstance();
-        currentExpiry.setTimeInMillis(this.viewModel.getToDo().getExpiry());
+        DetailViewViewModel.DateHelper dateHelper = viewModel.getDateHelper().getValue();
 
         new DatePickerDialog(
                 this,
                 (datePicker, year, month, day) -> {
-                    viewModel.getDateHelper().getValue().setDate(year, month, day);
+                    new TimePickerDialog(
+                            this,
+                            (timePicker, hourOfDay, minute) -> {
+                                dateHelper.setDate(year, month, day, hourOfDay, minute);
+                            },
+                            dateHelper.getHourOfDay(),
+                            dateHelper.getMinute(),
+                            true
+                    ).show();
                 },
-                currentExpiry.get(Calendar.YEAR),
-                currentExpiry.get(Calendar.MONTH),
-                currentExpiry.get(Calendar.DAY_OF_MONTH)
+                dateHelper.getYear(),
+                dateHelper.getMonth(),
+                dateHelper.getDayOfMonth()
         ).show();
     }
 
@@ -147,42 +171,9 @@ public class DetailViewActivity extends AppCompatActivity {
         if (cursor.moveToFirst()) {
             int columnIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID);
             long internalContactId = cursor.getLong(columnIndex);
-            readContactDetailsForInternalId(internalContactId);
 
             this.viewModel.getToDo().getContacts().add(String.valueOf(internalContactId));
-        }
-
-        cursor.close();
-    }
-
-    private void readContactDetailsForInternalId(long contactId) {
-        int hasReadContactPermission = checkSelfPermission(Manifest.permission.READ_CONTACTS);
-
-        if (hasReadContactPermission != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 42);
-            return;
-        }
-
-        String queryPattern = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
-        Cursor cursor = getContentResolver().query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null,
-                queryPattern,
-                new String[]{String.valueOf(contactId)},
-                null
-        );
-
-        while (cursor.moveToNext()) {
-            int displayNameColumnIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-            String displayName = cursor.getString(displayNameColumnIndex);
-
-            int phoneNumberColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-            int phoneNumberTypeColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
-
-            String phoneNumber = cursor.getString(phoneNumberColumnIndex);
-            int phoneNumberType = cursor.getInt(phoneNumberTypeColumnIndex);
-
-            boolean isMobile = phoneNumberType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
+            contactListViewAdapter.notifyDataSetChanged();
         }
 
         cursor.close();
@@ -207,4 +198,75 @@ public class DetailViewActivity extends AppCompatActivity {
                 }
             }
     );
+
+    protected class ContactAdapter extends ArrayAdapter<String> {
+
+        public ContactAdapter(Context owner, List<String> contacts) {
+            super(owner, R.layout.item_contact, contacts);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View recyclableContactView, @NonNull ViewGroup parent) {
+            ItemContactBinding binding;
+            View contactListView;
+
+            // Reuse recyclableToDoView or inflate new view
+            if (recyclableContactView == null) {
+                binding = DataBindingUtil.inflate(
+                        LayoutInflater.from(getContext()),
+                        R.layout.item_contact,
+                        null,
+                        false
+                );
+                contactListView = binding.getRoot();
+                contactListView.setTag(binding);
+            } else {
+                contactListView = recyclableContactView;
+                binding = (ItemContactBinding) contactListView.getTag();
+            }
+
+            String contactId = getItem(position);
+
+            binding.setContact(readContactDetailsForInternalId(contactId));
+            binding.setViewmodel(viewModel);
+
+            return contactListView;
+        }
+
+        private String readContactDetailsForInternalId(String contactId) {
+            int hasReadContactPermission = checkSelfPermission(Manifest.permission.READ_CONTACTS);
+
+            if (hasReadContactPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 42);
+                return "";
+            }
+
+            String queryPattern = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
+            Cursor cursor = getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    null,
+                    queryPattern,
+                    new String[]{contactId},
+                    null
+            );
+
+            while (cursor.moveToNext()) {
+                int displayNameColumnIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+                String displayName = cursor.getString(displayNameColumnIndex);
+
+                int phoneNumberColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                int phoneNumberTypeColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+
+                String phoneNumber = cursor.getString(phoneNumberColumnIndex);
+                int phoneNumberType = cursor.getInt(phoneNumberTypeColumnIndex);
+
+                boolean isMobile = phoneNumberType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
+                return displayName;
+            }
+
+            cursor.close();
+            return "";
+        }
+    }
 }

@@ -3,11 +3,11 @@
 
     <data>
         <variable
-            name="todo"
-            type="de.thieme.model.ToDo" />
+            name="contact"
+            type="String" />
         <variable
             name="viewmodel"
-            type="de.thieme.viewmodel.OverviewViewModel" />
+            type="de.thieme.viewmodel.DetailViewViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,18 +19,16 @@
             android:id="@+id/contactName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="6dp"
-            android:text="@{todo.name}"
-            android:textSize="16sp"
+            android:text="@{contact}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/todoIsFavorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/baseline_star_border_24"
+            android:id="@+id/deleteContact"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/delete_black_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@+id/contactName" />

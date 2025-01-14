@@ -35,8 +35,9 @@ public class OverviewViewModel extends ViewModel {
     private boolean initialized;
     private List<ToDo> todos = new ArrayList<>();
     private IToDoCRUDOperations crudOperations;
-    private MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private Comparator<ToDo> currentSortMode = SORT_BY_EXPIRY_AND_FAVOURITE;
+
+    private MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
 
     public List<ToDo> getTodos() {
         return todos;

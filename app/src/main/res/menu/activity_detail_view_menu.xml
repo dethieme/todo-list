@@ -8,14 +8,8 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/selectDate"
-        android:icon="@drawable/delete_24dp"
-        android:title="Datum ändern"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/deleteTodo"
-        android:icon="@drawable/delete_24dp"
+        android:icon="@drawable/delete_white_24dp"
         android:title="To Do löschen"
         app:showAsAction="always" />
 </menu>

@@ -23,16 +23,6 @@ public class BindingUtils {
         }
     }
 
-    @BindingAdapter("formattedDateTime")
-    public static void setFormattedDateTime(TextView textView, long timestamp) {
-        if (timestamp > 0) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault());
-            textView.setText(sdf.format(new Date(timestamp)) + " Uhr");
-        } else {
-            textView.setText("");
-        }
-    }
-
     @BindingAdapter("favoriteIcon")
     public static void setFavoriteIcon(ImageView imageView, boolean isFavourite) {
         imageView.setImageResource(isFavourite
