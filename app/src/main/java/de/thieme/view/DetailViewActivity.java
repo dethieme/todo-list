@@ -11,16 +11,13 @@ import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
 import android.widget.ListView;
-import android.widget.TimePicker;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -32,10 +29,7 @@ import androidx.lifecycle.ViewModelProvider;
 import org.dieschnittstelle.mobile.android.skeleton.R;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ItemContactBinding;
-import org.dieschnittstelle.mobile.android.skeleton.databinding.ItemTodoBinding;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import de.thieme.model.ToDo;
@@ -160,6 +154,7 @@ public class DetailViewActivity extends AppCompatActivity {
     }
 
     private void addContact() {
+
         Intent selectContactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         selectContactLauncher.launch(selectContactIntent);
     }
@@ -172,8 +167,14 @@ public class DetailViewActivity extends AppCompatActivity {
             int columnIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID);
             long internalContactId = cursor.getLong(columnIndex);
 
-            this.viewModel.getToDo().getContacts().add(String.valueOf(internalContactId));
-            contactListViewAdapter.notifyDataSetChanged();
+            int hasReadContactPermission = checkSelfPermission(Manifest.permission.READ_CONTACTS);
+
+            if (hasReadContactPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 42);
+            } else {
+                this.viewModel.getToDo().getContacts().add(String.valueOf(internalContactId));
+                contactListViewAdapter.notifyDataSetChanged();
+            }
         }
 
         cursor.close();
@@ -201,6 +202,8 @@ public class DetailViewActivity extends AppCompatActivity {
 
     protected class ContactAdapter extends ArrayAdapter<String> {
 
+        private final String QUERY_PATTERN = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
+
         public ContactAdapter(Context owner, List<String> contacts) {
             super(owner, R.layout.item_contact, contacts);
         }
@@ -227,46 +230,52 @@ public class DetailViewActivity extends AppCompatActivity {
             }
 
             String contactId = getItem(position);
-
-            binding.setContact(readContactDetailsForInternalId(contactId));
+            binding.setContactName(readContactName(contactId, ContactsContract.Contacts.DISPLAY_NAME));
             binding.setViewmodel(viewModel);
+
+            binding.contactViaMail.setOnClickListener(view -> {
+
+            });
+            binding.contactViaSms.setOnClickListener(view -> {
+
+            });
+            binding.deleteContact.setOnClickListener(view -> {
+                viewModel.getToDo().getContacts().removeIf(contact -> contact.equals(contactId));
+                notifyDataSetChanged();
+            });
 
             return contactListView;
         }
 
-        private String readContactDetailsForInternalId(String contactId) {
-            int hasReadContactPermission = checkSelfPermission(Manifest.permission.READ_CONTACTS);
-
-            if (hasReadContactPermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 42);
-                return "";
-            }
-
-            String queryPattern = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
+        private String readContactName(String contactId, String columnName) {
             Cursor cursor = getContentResolver().query(
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                     null,
-                    queryPattern,
+                    QUERY_PATTERN,
                     new String[]{contactId},
                     null
             );
 
-            while (cursor.moveToNext()) {
-                int displayNameColumnIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-                String displayName = cursor.getString(displayNameColumnIndex);
+            if (cursor != null && cursor.moveToNext()) {
+                int columnIndex = cursor.getColumnIndex(columnName);
+                String displayName = cursor.getString(columnIndex);
+                cursor.close();
 
-                int phoneNumberColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-                int phoneNumberTypeColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
-
-                String phoneNumber = cursor.getString(phoneNumberColumnIndex);
-                int phoneNumberType = cursor.getInt(phoneNumberTypeColumnIndex);
-
-                boolean isMobile = phoneNumberType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
                 return displayName;
+            } else {
+                return "";
             }
-
-            cursor.close();
-            return "";
         }
     }
+
+    /**
+     *  int phoneNumberColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+     *                 int phoneNumberTypeColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+     *
+     *                 String phoneNumber = cursor.getString(phoneNumberColumnIndex);
+     *                 int phoneNumberType = cursor.getInt(phoneNumberTypeColumnIndex);
+     *
+     *                 boolean isMobile = phoneNumberType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
+     *
+     */
 }

@@ -2,9 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
-            name="contact"
+            name="contactName"
             type="String" />
+
         <variable
             name="viewmodel"
             type="de.thieme.viewmodel.DetailViewViewModel" />
@@ -19,10 +21,30 @@
             android:id="@+id/contactName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{contact}"
+            android:text="@{contactName}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/contactViaMail"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/mail_black_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/contactViaSms"
+            app:layout_constraintTop_toTopOf="@+id/contactName" />
+
+        <ImageView
+            android:id="@+id/contactViaSms"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="5dp"
+            android:src="@drawable/sms_black_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/deleteContact"
+            app:layout_constraintTop_toTopOf="@+id/contactName" />
 
         <ImageView
             android:id="@+id/deleteContact"
