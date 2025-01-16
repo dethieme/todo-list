@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -205,8 +206,6 @@ public class DetailViewActivity extends AppCompatActivity {
 
     protected class ContactAdapter extends ArrayAdapter<String> {
 
-        private final String QUERY_PATTERN = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
-
         public ContactAdapter(Context owner, List<String> contacts) {
             super(owner, R.layout.item_contact, contacts);
         }
@@ -233,18 +232,26 @@ public class DetailViewActivity extends AppCompatActivity {
             }
 
             Contact contact = readContact(getItem(position));
-            //contact.setName(readDetail(contact.getId(), ContactsContract.Contacts.DISPLAY_NAME));
-          //  contact.setMailAddress(readDetail(contact.getId(), ContactsContract.CommonDataKinds.Email.ADDRESS));
-
             binding.setContact(contact);
             binding.setViewmodel(viewModel);
 
             binding.contactViaMail.setOnClickListener(view -> {
-                Log.i("NAME", contact.getName());
-                Log.i("MAIL", contact.getMailAddress());
+                Intent selectorIntent = new Intent(Intent.ACTION_SENDTO);
+                String urlString = "mailto:" + Uri.encode(contact.getMailAddress());
+                selectorIntent.setData(Uri.parse(urlString));
+
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { contact.getMailAddress() });
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, viewModel.getToDo().getName());
+                emailIntent.putExtra(Intent.EXTRA_TEXT, viewModel.getToDo().getDescription());
+                emailIntent.setSelector(selectorIntent);
+                startActivity(Intent.createChooser(emailIntent, "Todo per Mail senden"));
             });
             binding.contactViaSms.setOnClickListener(view -> {
-
+                Uri uri = Uri.parse("smsto:" + contact.getMobileNumber());
+                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
+                intent.putExtra("sms_body", viewModel.getToDo().getName() + ":\n" + viewModel.getToDo().getDescription());
+                startActivity(intent);
             });
             binding.deleteContact.setOnClickListener(view -> {
                 viewModel.getToDo().getContacts().removeIf(c -> c.equals(contact.getId()));
@@ -254,30 +261,9 @@ public class DetailViewActivity extends AppCompatActivity {
             return contactListView;
         }
 
-        private String readDetail(String contactId, String columnName) {
-            Cursor cursor = getContentResolver().query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    null,
-                    QUERY_PATTERN,
-                    new String[]{contactId},
-                    null
-            );
-
-            if (cursor != null && cursor.moveToNext()) {
-                int columnIndex = cursor.getColumnIndex(columnName);
-                String displayName = cursor.getString(columnIndex);
-                cursor.close();
-
-                return displayName;
-            } else {
-                return "";
-            }
-        }
-
-        public  Contact readContact(String contactId) {
+        public Contact readContact(String contactId) {
             Contact contact = new Contact(contactId);
 
-            // Query the ContactsContract.Data table
             Cursor cursor = getContentResolver().query(
                     ContactsContract.Data.CONTENT_URI,
                     new String[]{
@@ -285,43 +271,48 @@ public class DetailViewActivity extends AppCompatActivity {
                             ContactsContract.Contacts.DISPLAY_NAME,
                             ContactsContract.CommonDataKinds.Phone.NUMBER,
                             ContactsContract.CommonDataKinds.Phone.TYPE,
-                            ContactsContract.CommonDataKinds.Email.DATA
+                            ContactsContract.CommonDataKinds.Email.ADDRESS
                     },
                     ContactsContract.Data.CONTACT_ID + " = ?",
                     new String[]{contactId},
                     null
             );
 
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    // Retrieve and set the contact's name
-                    if (contact.getName() == null) {
-                        String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                        contact.setName(name);
-                    }
+            while (cursor != null && cursor.moveToNext()) {
+                int index = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
 
-                    // Check the MIME type
-                    String mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE));
-
-                    if (mimeType.equals(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)) {
-                        // Check if the phone number is mobile
-                        int phoneNumberType = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
-                        if (phoneNumberType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) {
-                            String mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            contact.setMobileNumber(mobileNumber);
-                        }
-                    } else if (mimeType.equals(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)) {
-                        String email = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                        contact.setMailAddress(email);
-                    }
-
-                    // Break early if all fields are populated
-                    if (contact.getName() != null && contact.getMobileNumber() != null && contact.getMailAddress() != null) {
-                        break;
-                    }
+                if (contact.getName() == null) {
+                    contact.setName(cursor.getString(index));
                 }
-                cursor.close();
+
+                index = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE);
+                String mimeType = cursor.getString(index);
+
+                switch (mimeType) {
+                    case ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE:
+                        index = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+                        boolean isMobile = cursor.getInt(index) == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
+
+                        if (isMobile) {
+                            index = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                            contact.setMobileNumber(cursor.getString(index));
+                        }
+                        break;
+                    case ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE:
+                        index = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
+                        contact.setMailAddress(cursor.getString(index));
+                        break;
+                    default:
+                        break;
+                }
+
+                // Break early if all fields are populated
+                if (contact.getName() != null && contact.getMobileNumber() != null && contact.getMailAddress() != null) {
+                    break;
+                }
             }
+
+            cursor.close();
 
             return contact;
         }
