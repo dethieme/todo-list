@@ -3,6 +3,7 @@ package de.thieme.view;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +34,7 @@ import org.dieschnittstelle.mobile.android.skeleton.databinding.ItemContactBindi
 
 import java.util.List;
 
+import de.thieme.model.Contact;
 import de.thieme.model.ToDo;
 import de.thieme.util.BindingUtils;
 import de.thieme.viewmodel.DetailViewViewModel;
@@ -229,25 +232,29 @@ public class DetailViewActivity extends AppCompatActivity {
                 binding = (ItemContactBinding) contactListView.getTag();
             }
 
-            String contactId = getItem(position);
-            binding.setContactName(readContactName(contactId, ContactsContract.Contacts.DISPLAY_NAME));
+            Contact contact = readContact(getItem(position));
+            //contact.setName(readDetail(contact.getId(), ContactsContract.Contacts.DISPLAY_NAME));
+          //  contact.setMailAddress(readDetail(contact.getId(), ContactsContract.CommonDataKinds.Email.ADDRESS));
+
+            binding.setContact(contact);
             binding.setViewmodel(viewModel);
 
             binding.contactViaMail.setOnClickListener(view -> {
-
+                Log.i("NAME", contact.getName());
+                Log.i("MAIL", contact.getMailAddress());
             });
             binding.contactViaSms.setOnClickListener(view -> {
 
             });
             binding.deleteContact.setOnClickListener(view -> {
-                viewModel.getToDo().getContacts().removeIf(contact -> contact.equals(contactId));
+                viewModel.getToDo().getContacts().removeIf(c -> c.equals(contact.getId()));
                 notifyDataSetChanged();
             });
 
             return contactListView;
         }
 
-        private String readContactName(String contactId, String columnName) {
+        private String readDetail(String contactId, String columnName) {
             Cursor cursor = getContentResolver().query(
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                     null,
@@ -265,6 +272,58 @@ public class DetailViewActivity extends AppCompatActivity {
             } else {
                 return "";
             }
+        }
+
+        public  Contact readContact(String contactId) {
+            Contact contact = new Contact(contactId);
+
+            // Query the ContactsContract.Data table
+            Cursor cursor = getContentResolver().query(
+                    ContactsContract.Data.CONTENT_URI,
+                    new String[]{
+                            ContactsContract.Data.MIMETYPE,
+                            ContactsContract.Contacts.DISPLAY_NAME,
+                            ContactsContract.CommonDataKinds.Phone.NUMBER,
+                            ContactsContract.CommonDataKinds.Phone.TYPE,
+                            ContactsContract.CommonDataKinds.Email.DATA
+                    },
+                    ContactsContract.Data.CONTACT_ID + " = ?",
+                    new String[]{contactId},
+                    null
+            );
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    // Retrieve and set the contact's name
+                    if (contact.getName() == null) {
+                        String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        contact.setName(name);
+                    }
+
+                    // Check the MIME type
+                    String mimeType = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE));
+
+                    if (mimeType.equals(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)) {
+                        // Check if the phone number is mobile
+                        int phoneNumberType = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                        if (phoneNumberType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) {
+                            String mobileNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                            contact.setMobileNumber(mobileNumber);
+                        }
+                    } else if (mimeType.equals(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)) {
+                        String email = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                        contact.setMailAddress(email);
+                    }
+
+                    // Break early if all fields are populated
+                    if (contact.getName() != null && contact.getMobileNumber() != null && contact.getMailAddress() != null) {
+                        break;
+                    }
+                }
+                cursor.close();
+            }
+
+            return contact;
         }
     }
 

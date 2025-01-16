@@ -4,8 +4,8 @@
     <data>
 
         <variable
-            name="contactName"
-            type="String" />
+            name="contact"
+            type="de.thieme.model.Contact" />
 
         <variable
             name="viewmodel"
@@ -21,7 +21,7 @@
             android:id="@+id/contactName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{contactName}"
+            android:text="@{contact.name}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
