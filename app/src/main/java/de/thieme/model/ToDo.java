@@ -83,6 +83,10 @@ public class ToDo implements Serializable {
         this.isFavourite = isFavourite;
     }
 
+    public boolean isOverdue() {
+        return expiry < System.currentTimeMillis();
+    }
+
     public ArrayList<String> getContacts() {
         if (contacts == null) {
             this.contacts = new ArrayList<>();
@@ -122,6 +126,7 @@ public class ToDo implements Serializable {
                 ", expiry=" + expiry +
                 ", isDone=" + isDone +
                 ", isFavourite=" + isFavourite +
+                ", contacts=" + contacts +
                 '}';
     }
 }

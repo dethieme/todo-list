@@ -2,6 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View" />
 
         <variable
             name="contact"
@@ -27,21 +28,23 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/contactViaMail"
+            android:id="@+id/sendMail"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="5dp"
             android:src="@drawable/mail_black_24dp"
+            android:visibility="@{contact.mailAddress != null ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/contactViaSms"
+            app:layout_constraintRight_toLeftOf="@id/sendSms"
             app:layout_constraintTop_toTopOf="@+id/contactName" />
 
         <ImageView
-            android:id="@+id/contactViaSms"
+            android:id="@+id/sendSms"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginEnd="5dp"
             android:src="@drawable/sms_black_24dp"
+            android:visibility="@{contact.mobileNumber != null ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/deleteContact"
             app:layout_constraintTop_toTopOf="@+id/contactName" />

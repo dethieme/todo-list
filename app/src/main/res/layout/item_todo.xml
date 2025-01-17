@@ -2,9 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
+        <import type="java.util.Date" />
+
         <variable
             name="todo"
             type="de.thieme.model.ToDo" />
+
         <variable
             name="viewmodel"
             type="de.thieme.viewmodel.OverviewViewModel" />
@@ -32,6 +36,7 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="@{todo.name}"
+            android:textColor="@{todo.isOverdue() ? @color/red : @color/black}"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/todoIsDone"
@@ -43,6 +48,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
+            android:textColor="@{todo.isOverdue() ? @color/red : @color/black}"
             android:textSize="16sp"
             app:formattedDate="@{todo.expiry}"
             app:layout_constraintBottom_toBottomOf="parent"
