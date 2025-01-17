@@ -15,6 +15,7 @@ public class LoginViewModel extends ViewModel {
 
     private MutableLiveData<Boolean> loginButtonEnabled = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> loginSuccessful = new MutableLiveData<>();
+    private MutableLiveData<Boolean> progressBarVisible = new MutableLiveData<>(false);  // Track ProgressBar visibility
 
     private MutableLiveData<String> passwordErrorStatus = new MutableLiveData<>();
     private MutableLiveData<String> emailErrorStatus = new MutableLiveData<>();
@@ -38,6 +39,10 @@ public class LoginViewModel extends ViewModel {
 
     public MutableLiveData<String> getEmailErrorStatus() {
         return emailErrorStatus;
+    }
+
+    public MutableLiveData<Boolean> getProgressBarVisible() {
+        return progressBarVisible;
     }
 
     public String getEmail() {
@@ -97,17 +102,30 @@ public class LoginViewModel extends ViewModel {
     }
 
     private void validateLoginButtonState() {
-        loginButtonEnabled.setValue(!email.trim().isEmpty() && !password.isEmpty()
-        );
+        loginButtonEnabled.setValue(!email.trim().isEmpty() && !password.isEmpty() && !progressBarVisible.getValue());
     }
 
     public void performLogin() {
-        // Simulate a login process
-        if (email.equals("de.thieme@ostfalia.de") && password.equals("123456")) {
-            loginSuccessful.setValue(true);
-        } else {
-            credentialsErrorStatus.setValue("Ungültige Anmeldedaten.");
-            loginSuccessful.setValue(false);
-        }
+        // Show the progress bar while simulating the login process
+        progressBarVisible.setValue(true);
+
+        // Simulate a network request with a delay of 2 seconds (this should be replaced with real network logic)
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000); // Simulate network delay
+            } catch (Exception ignored) {
+            }
+
+            // Validate credentials (replace with Firebase/Web request validation)
+            if (email.equals("de.thieme@ostfalia.de") && password.equals("123456")) {
+                loginSuccessful.postValue(true);
+                credentialsErrorStatus.postValue(null);
+            } else {
+                loginSuccessful.postValue(false);
+                credentialsErrorStatus.postValue("Ungültige Anmeldedaten.");
+            }
+
+            progressBarVisible.postValue(false);
+        }).start();
     }
 }

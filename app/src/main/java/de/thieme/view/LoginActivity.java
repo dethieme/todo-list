@@ -2,7 +2,6 @@ package de.thieme.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 
@@ -13,17 +12,14 @@ import de.thieme.viewmodel.LoginViewModel;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private LoginViewModel viewModel;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Instantiate or reuse the view model.
-        viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
-
-        // Instantiate the view and pass the view model to it.
+        // Bind ViewModel to the layout
         ActivityLoginBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
+        LoginViewModel viewModel = new LoginViewModel();
+
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(this);
 
