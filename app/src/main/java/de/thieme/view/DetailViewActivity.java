@@ -49,7 +49,6 @@ public class DetailViewActivity extends AppCompatActivity {
     private static final int REQUEST_CONTACT_PERMISSIONS = 42;
     private DetailViewViewModel viewModel;
     private ContactAdapter contactListViewAdapter;
-    private ListView contactListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +157,6 @@ public class DetailViewActivity extends AppCompatActivity {
     }
 
     private void addContact() {
-
         Intent selectContactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         selectContactLauncher.launch(selectContactIntent);
     }
@@ -169,15 +167,17 @@ public class DetailViewActivity extends AppCompatActivity {
 
         if (cursor.moveToFirst()) {
             int columnIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID);
-            long internalContactId = cursor.getLong(columnIndex);
+            String internalContactId = String.valueOf(cursor.getLong(columnIndex));
 
             int hasReadContactPermission = checkSelfPermission(Manifest.permission.READ_CONTACTS);
 
             if (hasReadContactPermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 42);
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_CONTACT_PERMISSIONS);
             } else {
-                this.viewModel.getToDo().getContacts().add(String.valueOf(internalContactId));
-                contactListViewAdapter.notifyDataSetChanged();
+                if (!this.viewModel.getToDo().getContacts().contains(internalContactId)) {
+                    this.viewModel.getToDo().getContacts().add(internalContactId);
+                    contactListViewAdapter.notifyDataSetChanged();
+                }
             }
         }
 
@@ -235,23 +235,24 @@ public class DetailViewActivity extends AppCompatActivity {
             binding.setContact(contact);
             binding.setViewmodel(viewModel);
 
-            binding.contactViaMail.setOnClickListener(view -> {
+            binding.sendMail.setOnClickListener(view -> {
                 Intent selectorIntent = new Intent(Intent.ACTION_SENDTO);
-                String urlString = "mailto:" + Uri.encode(contact.getMailAddress());
-                selectorIntent.setData(Uri.parse(urlString));
+                selectorIntent.setData(Uri.parse("mailto:" + Uri.encode(contact.getMailAddress())));
 
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { contact.getMailAddress() });
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{contact.getMailAddress()});
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, viewModel.getToDo().getName());
                 emailIntent.putExtra(Intent.EXTRA_TEXT, viewModel.getToDo().getDescription());
                 emailIntent.setSelector(selectorIntent);
-                startActivity(Intent.createChooser(emailIntent, "Todo per Mail senden"));
+                startActivity(Intent.createChooser(emailIntent, "Mailversand: To Do"));
             });
-            binding.contactViaSms.setOnClickListener(view -> {
-                Uri uri = Uri.parse("smsto:" + contact.getMobileNumber());
-                Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-                intent.putExtra("sms_body", viewModel.getToDo().getName() + ":\n" + viewModel.getToDo().getDescription());
-                startActivity(intent);
+            binding.sendSms.setOnClickListener(view -> {
+                Intent smsIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + contact.getMobileNumber()));
+                smsIntent.putExtra(
+                        "sms_body",
+                        viewModel.getToDo().getName() + ":\n" + viewModel.getToDo().getDescription()
+                );
+                startActivity(smsIntent);
             });
             binding.deleteContact.setOnClickListener(view -> {
                 viewModel.getToDo().getContacts().removeIf(c -> c.equals(contact.getId()));
@@ -317,15 +318,4 @@ public class DetailViewActivity extends AppCompatActivity {
             return contact;
         }
     }
-
-    /**
-     *  int phoneNumberColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-     *                 int phoneNumberTypeColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
-     *
-     *                 String phoneNumber = cursor.getString(phoneNumberColumnIndex);
-     *                 int phoneNumberType = cursor.getInt(phoneNumberTypeColumnIndex);
-     *
-     *                 boolean isMobile = phoneNumberType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
-     *
-     */
 }
