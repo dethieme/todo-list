@@ -29,7 +29,7 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
         public Call<Boolean> deleteToDo(@Path("id") long id);
     }
 
-    private ToDoRESTWebAPI toDoRESTWebAPI;
+    private final ToDoRESTWebAPI toDoRESTWebAPI;
 
     public RetrofitToDoCRUDOperations() {
         Retrofit apiBase = new Retrofit.Builder()
@@ -55,11 +55,6 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public ToDo read(long id) {
-        return null;
     }
 
     @Override

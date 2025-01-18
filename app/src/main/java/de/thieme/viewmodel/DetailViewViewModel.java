@@ -14,6 +14,67 @@ import de.thieme.model.ToDo;
 
 public class DetailViewViewModel extends ViewModel {
 
+    private final MutableLiveData<Boolean> todoValidOnSave = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorStatus = new MutableLiveData<>();
+    private final MutableLiveData<DateHelper> dateHelper = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isFavourite = new MutableLiveData<>();
+
+    private ToDo todo;
+
+    public void setTodo(ToDo todo) {
+        this.todo = todo;
+        this.dateHelper.setValue(new DateHelper(todo.getExpiry()));
+        this.isFavourite.setValue(todo.isFavourite());
+    }
+
+    public ToDo getTodo() {
+        return todo;
+    }
+
+    public MutableLiveData<DateHelper> getDateHelper() {
+        return dateHelper;
+    }
+
+    public MutableLiveData<Boolean> getTodoValidOnSave() {
+        return todoValidOnSave;
+    }
+
+    public MutableLiveData<String> getErrorStatus() {
+        return errorStatus;
+    }
+
+    public MutableLiveData<Boolean> getIsFavourite() {
+        return isFavourite;
+    }
+
+    public void toggleFavourite() {
+        if (todo != null) {
+            boolean newValue = !todo.isFavourite();
+            todo.setIsFavourite(newValue);
+            isFavourite.setValue(newValue);
+        }
+    }
+
+    public void saveToDo() {
+        todoValidOnSave.setValue(true);
+    }
+
+    public boolean checkFieldInputInvalid(int keyId) {
+        if (keyId == EditorInfo.IME_ACTION_NEXT || keyId == EditorInfo.IME_ACTION_DONE) {
+            if (todo.getName().length() < 4) {
+                this.errorStatus.setValue("Name zu kurz.");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean onNameFieldInputChanged() {
+        this.errorStatus.setValue(null);
+        return false;
+    }
+
     public class DateHelper {
 
         private final GregorianCalendar calendar;
@@ -25,7 +86,7 @@ public class DetailViewViewModel extends ViewModel {
 
         public void setDate(int year, int month, int dayOfMonth, int hourOfDay, int minute) {
             calendar.set(year, month, dayOfMonth, hourOfDay, minute);
-            toDo.setExpiry(calendar.getTimeInMillis());
+            todo.setExpiry(calendar.getTimeInMillis());
             dateHelper.setValue(this);
         }
 
@@ -53,54 +114,5 @@ public class DetailViewViewModel extends ViewModel {
         public int getMinute() {
             return calendar.get(GregorianCalendar.MINUTE);
         }
-    }
-
-    private MutableLiveData<Boolean> toDoValidOnSave = new MutableLiveData<>(false);
-    private MutableLiveData<String> errorStatus = new MutableLiveData<>();
-    private MutableLiveData<DateHelper> dateHelper = new MutableLiveData<>();
-
-    private ToDo toDo;
-
-    public void setToDo(ToDo toDo) {
-        this.toDo = toDo;
-        this.dateHelper.setValue(new DateHelper(toDo.getExpiry()));
-    }
-
-    public ToDo getToDo() {
-        return toDo;
-    }
-
-    public MutableLiveData<DateHelper> getDateHelper() {
-        return dateHelper;
-    }
-
-    public MutableLiveData<Boolean> getToDoValidOnSave() {
-        return toDoValidOnSave;
-    }
-
-    public MutableLiveData<String> getErrorStatus() {
-        return errorStatus;
-    }
-
-    public void saveToDo() {
-        toDoValidOnSave.setValue(true);
-    }
-
-    public boolean checkFieldInputInvalid(int keyId) {
-        if (keyId == EditorInfo.IME_ACTION_NEXT || keyId == EditorInfo.IME_ACTION_DONE) {
-            String itemName = toDo.getName();
-
-            if (itemName.length() < 4) {
-                this.errorStatus.setValue("Name too short.");
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean onNameFieldInputChanged() {
-        this.errorStatus.setValue(null);
-        return false;
     }
 }

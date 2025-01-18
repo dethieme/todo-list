@@ -3,7 +3,6 @@
 
     <data>
         <import type="android.view.View" />
-
         <variable
             name="contact"
             type="de.thieme.model.Contact" />
@@ -16,13 +15,16 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
 
         <TextView
             android:id="@+id/contactName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{contact.name}"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -42,7 +44,8 @@
             android:id="@+id/sendSms"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="4dp"
             android:src="@drawable/sms_black_24dp"
             android:visibility="@{contact.mobileNumber != null ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"

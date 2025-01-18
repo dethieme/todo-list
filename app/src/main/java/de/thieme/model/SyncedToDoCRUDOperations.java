@@ -30,11 +30,6 @@ public class SyncedToDoCRUDOperations implements IToDoCRUDOperations {
     }
 
     @Override
-    public ToDo read(long id) {
-        return localCRUD.read(id);
-    }
-
-    @Override
     public boolean update(ToDo todo) {
         if (localCRUD.update(todo)) {
             remoteCRUD.update(todo);
@@ -64,7 +59,7 @@ public class SyncedToDoCRUDOperations implements IToDoCRUDOperations {
                     remoteCRUD.create(localTodo);
                 }
 
-                Log.d(LOG_TAG, "Synchronisierung abgeschlossen: Lokale To Dos wurden auf Backend übertragen.");
+                Log.d(LOG_TAG, "Synchronization succeeded: Local todos where transferred to remote database.");
             } else {
                 List<ToDo> remoteTodos = remoteCRUD.readAll();
 
@@ -72,10 +67,10 @@ public class SyncedToDoCRUDOperations implements IToDoCRUDOperations {
                     localCRUD.create(remoteTodo);
                 }
 
-                Log.d(LOG_TAG, "Synchronisierung abgeschlossen: Remote-To Dos wurden in lokale Datenbank übertragen.");
+                Log.d(LOG_TAG, "Synchronization succeeded: Remote todos where transferred to local database.");
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Fehler bei Synchronisierung: " + e.getMessage(), e);
+            Log.e(LOG_TAG, "Synchronization failed: " + e.getMessage(), e);
         }
     }
 

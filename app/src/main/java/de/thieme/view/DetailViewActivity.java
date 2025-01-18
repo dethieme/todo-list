@@ -3,7 +3,6 @@ package de.thieme.view;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,15 +11,12 @@ import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -37,7 +33,6 @@ import java.util.List;
 
 import de.thieme.model.Contact;
 import de.thieme.model.ToDo;
-import de.thieme.util.BindingUtils;
 import de.thieme.viewmodel.DetailViewViewModel;
 
 public class DetailViewActivity extends AppCompatActivity {
@@ -57,21 +52,21 @@ public class DetailViewActivity extends AppCompatActivity {
         // Instantiate or reuse the view model.
         viewModel = new ViewModelProvider(this).get(DetailViewViewModel.class);
 
-        if (viewModel.getToDo() == null) {
+        if (viewModel.getTodo() == null) {
             ToDo todo = (ToDo) getIntent().getSerializableExtra(ARG_TODO);
 
             if (todo == null) {
                 todo = new ToDo();
             }
 
-            viewModel.setToDo(todo);
+            viewModel.setTodo(todo);
         }
 
         // Register the activity as observer.
-        viewModel.getToDoValidOnSave().observe(this, valid -> {
+        viewModel.getTodoValidOnSave().observe(this, valid -> {
             if (valid) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra(ARG_TODO, this.viewModel.getToDo());
+                returnIntent.putExtra(ARG_TODO, this.viewModel.getTodo());
 
                 this.setResult(RESULT_CODE_EDITED_OR_CREATED, returnIntent);
                 this.finish();
@@ -85,14 +80,13 @@ public class DetailViewActivity extends AppCompatActivity {
         binding.setLifecycleOwner(this);
 
         binding.todoIsFavorite.setOnClickListener(view -> {
-            viewModel.getToDo().setIsFavourite(!viewModel.getToDo().isFavourite());
-            BindingUtils.setFavoriteIcon(binding.todoIsFavorite, viewModel.getToDo().isFavourite());
+            viewModel.toggleFavourite();
         });
         binding.todoExpiry.setOnClickListener(view -> {
             showDatePickerDialog();
         });
 
-        contactListViewAdapter = new ContactAdapter(this, viewModel.getToDo().getContacts());
+        contactListViewAdapter = new ContactAdapter(this, viewModel.getTodo().getContacts());
         binding.contactListView.setAdapter(contactListViewAdapter);
     }
 
@@ -142,16 +136,14 @@ public class DetailViewActivity extends AppCompatActivity {
         alert.setTitle("Löschen");
         alert.setMessage("Willst du dieses To Do wirklich löschen?");
 
-        alert.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+        alert.setPositiveButton("Löschen", (dialog, which) -> {
             Intent returnIntent = new Intent();
-            returnIntent.putExtra(ARG_TODO, this.viewModel.getToDo());
+            returnIntent.putExtra(ARG_TODO, this.viewModel.getTodo());
 
             this.setResult(RESULT_CODE_DELETED, returnIntent);
             this.finish();
         });
-        alert.setNegativeButton(android.R.string.no, (dialog, which) -> {
-            dialog.cancel();
-        });
+        alert.setNegativeButton("Abbrechen", (dialog, which) -> dialog.cancel());
 
         alert.show();
     }
@@ -168,14 +160,13 @@ public class DetailViewActivity extends AppCompatActivity {
         if (cursor.moveToFirst()) {
             int columnIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID);
             String internalContactId = String.valueOf(cursor.getLong(columnIndex));
-
             int hasReadContactPermission = checkSelfPermission(Manifest.permission.READ_CONTACTS);
 
             if (hasReadContactPermission != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_CONTACT_PERMISSIONS);
             } else {
-                if (!this.viewModel.getToDo().getContacts().contains(internalContactId)) {
-                    this.viewModel.getToDo().getContacts().add(internalContactId);
+                if (!this.viewModel.getTodo().getContacts().contains(internalContactId)) {
+                    this.viewModel.getTodo().getContacts().add(internalContactId);
                     contactListViewAdapter.notifyDataSetChanged();
                 }
             }
@@ -186,19 +177,18 @@ public class DetailViewActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CONTACT_PERMISSIONS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                addContact();
-            }
+        if (requestCode == REQUEST_CONTACT_PERMISSIONS
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            addContact();
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
-    private ActivityResultLauncher<Intent> selectContactLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> selectContactLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == DetailViewActivity.RESULT_OK) {
+                if (result.getResultCode() == DetailViewActivity.RESULT_OK && result.getData() != null) {
                     readContactDetails(result.getData().getData());
                 }
             }
@@ -241,8 +231,8 @@ public class DetailViewActivity extends AppCompatActivity {
 
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{contact.getMailAddress()});
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, viewModel.getToDo().getName());
-                emailIntent.putExtra(Intent.EXTRA_TEXT, viewModel.getToDo().getDescription());
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, viewModel.getTodo().getName());
+                emailIntent.putExtra(Intent.EXTRA_TEXT, viewModel.getTodo().getDescription());
                 emailIntent.setSelector(selectorIntent);
                 startActivity(Intent.createChooser(emailIntent, "Mailversand: To Do"));
             });
@@ -250,12 +240,12 @@ public class DetailViewActivity extends AppCompatActivity {
                 Intent smsIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + contact.getMobileNumber()));
                 smsIntent.putExtra(
                         "sms_body",
-                        viewModel.getToDo().getName() + ":\n" + viewModel.getToDo().getDescription()
+                        viewModel.getTodo().getName() + ":\n" + viewModel.getTodo().getDescription()
                 );
                 startActivity(smsIntent);
             });
             binding.deleteContact.setOnClickListener(view -> {
-                viewModel.getToDo().getContacts().removeIf(c -> c.equals(contact.getId()));
+                viewModel.getTodo().getContacts().removeIf(c -> c.equals(contact.getId()));
                 notifyDataSetChanged();
             });
 
@@ -279,7 +269,7 @@ public class DetailViewActivity extends AppCompatActivity {
                     null
             );
 
-            while (cursor != null && cursor.moveToNext()) {
+            while (cursor.moveToNext()) {
                 int index = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
 
                 if (contact.getName() == null) {
@@ -308,7 +298,9 @@ public class DetailViewActivity extends AppCompatActivity {
                 }
 
                 // Break early if all fields are populated
-                if (contact.getName() != null && contact.getMobileNumber() != null && contact.getMailAddress() != null) {
+                if (contact.getName() != null
+                        && contact.getMobileNumber() != null
+                        && contact.getMailAddress() != null) {
                     break;
                 }
             }

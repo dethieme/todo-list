@@ -4,11 +4,9 @@
     <data>
 
         <import type="java.util.Date" />
-
         <variable
             name="todo"
             type="de.thieme.model.ToDo" />
-
         <variable
             name="viewmodel"
             type="de.thieme.viewmodel.OverviewViewModel" />
@@ -59,8 +57,7 @@
             android:id="@+id/todoIsFavorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_star_border_24"
-            app:favoriteIcon="@{todo.favourite}"
+            android:src="@{todo.favourite ? @drawable/baseline_star_24 : @drawable/baseline_star_border_24}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@+id/todoName" />

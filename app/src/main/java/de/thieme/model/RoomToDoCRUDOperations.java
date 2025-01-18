@@ -43,15 +43,12 @@ public class RoomToDoCRUDOperations implements IToDoCRUDOperations {
     }
 
     @Dao
-    public static interface SQLiteToDoCRUDOperations {
+    public interface SQLiteToDoCRUDOperations {
         @Insert
         public long createTodo(ToDo todo);
 
         @Query("SELECT * FROM to_dos")
         public List<ToDo> readAllTodos();
-
-        @Query("SELECT * FROM to_dos WHERE id=(:id)")
-        public ToDo readTodo(long id);
 
         @Update
         public void updateTodo(ToDo todo);
@@ -85,11 +82,6 @@ public class RoomToDoCRUDOperations implements IToDoCRUDOperations {
     @Override
     public List<ToDo> readAll() {
         return database.getDao().readAllTodos();
-    }
-
-    @Override
-    public ToDo read(long id) {
-        return database.getDao().readTodo(id);
     }
 
     @Override
