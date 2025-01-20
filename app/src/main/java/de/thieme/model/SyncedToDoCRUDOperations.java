@@ -91,4 +91,8 @@ public class SyncedToDoCRUDOperations implements IToDoCRUDOperations {
             remoteCRUD.delete(remoteTodo.getId());
         }
     }
+
+    public boolean authenticateUser(User user) {
+        return remoteCRUD.authenticateUser(user);
+    }
 }

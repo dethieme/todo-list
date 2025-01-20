@@ -6,9 +6,10 @@ import androidx.core.util.PatternsCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class LoginViewModel extends ViewModel {
+import de.thieme.ToDoApplication;
+import de.thieme.model.User;
 
-    private static final String LOG_TAG = LoginViewModel.class.getSimpleName();
+public class LoginViewModel extends ViewModel {
 
     private String email = "";
     private String password = "";
@@ -102,26 +103,23 @@ public class LoginViewModel extends ViewModel {
     }
 
     private void validateLoginButtonState() {
-        loginButtonEnabled.setValue(!email.trim().isEmpty() && !password.isEmpty() && !progressBarVisible.getValue());
+        loginButtonEnabled.setValue(!email.trim().isEmpty() && !password.isEmpty());
     }
 
-    public void performLogin() {
-        // Show the progress bar while simulating the login process
+    public void performLogin(ToDoApplication application) {
         progressBarVisible.setValue(true);
 
-        // Simulate a network request with a delay of 2 seconds (this should be replaced with real network logic)
         new Thread(() -> {
             try {
                 Thread.sleep(2000); // Simulate network delay
             } catch (Exception ignored) {
             }
 
-            // Validate credentials (replace with Firebase/Web request validation)
-            if (email.equals("de.thieme@ostfalia.de") && password.equals("123456")) {
-                loginSuccessful.postValue(true);
-                credentialsErrorStatus.postValue(null);
-            } else {
-                loginSuccessful.postValue(false);
+            loginSuccessful.postValue(
+                    application.authenticateUser(new User(this.email, this.password))
+            );
+
+            if (!Boolean.TRUE.equals(loginSuccessful.getValue())) {
                 credentialsErrorStatus.postValue("Ungültige Anmeldedaten.");
             }
 

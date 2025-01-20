@@ -13,12 +13,14 @@ import de.thieme.model.IToDoCRUDOperations;
 import de.thieme.model.RetrofitToDoCRUDOperations;
 import de.thieme.model.RoomToDoCRUDOperations;
 import de.thieme.model.SyncedToDoCRUDOperations;
+import de.thieme.model.User;
 
 public class ToDoApplication extends Application {
 
     private static final String LOG_TAG = ToDoApplication.class.getSimpleName();
     private static final String BACKEND_URL = "http://10.0.2.2:8080/api/todos";
 
+    private final User user = new User("de.thieme@ostfalia.de", "123456");
     private IToDoCRUDOperations crudOperations;
 
     @Override
@@ -53,6 +55,7 @@ public class ToDoApplication extends Application {
             if (isBackendAccessible()) {
                 RoomToDoCRUDOperations localCrud = new RoomToDoCRUDOperations(this);
                 RetrofitToDoCRUDOperations remoteCrud = new RetrofitToDoCRUDOperations();
+                remoteCrud.prepareUser(user);
 
                 this.crudOperations = new SyncedToDoCRUDOperations(localCrud, remoteCrud);
                 this.crudOperations.synchronize();
@@ -68,5 +71,13 @@ public class ToDoApplication extends Application {
 
     public boolean isOffline() {
         return this.crudOperations instanceof RoomToDoCRUDOperations;
+    }
+
+    public boolean authenticateUser(User user) {
+        if (!isOffline()) {
+           return ((SyncedToDoCRUDOperations) this.crudOperations).authenticateUser(user);
+        }
+
+        return false;
     }
 }

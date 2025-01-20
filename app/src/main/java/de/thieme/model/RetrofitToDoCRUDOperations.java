@@ -27,6 +27,12 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
 
         @DELETE("todos/{id}")
         public Call<Boolean> deleteToDo(@Path("id") long id);
+
+        @PUT("users/prepare")
+        public Call<Boolean> authenticateUser(@Body User user);
+
+        @PUT("users/auth")
+        public Call<Boolean> prepareUser(@Body User user);
     }
 
     private final ToDoRESTWebAPI toDoRESTWebAPI;
@@ -89,5 +95,21 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
     @Override
     public void deleteAllRemoteTodos() {
         readAll().forEach(todo -> delete(todo.getId()));
+    }
+
+    public boolean prepareUser(User user) {
+        try {
+            return Boolean.TRUE.equals(toDoRESTWebAPI.prepareUser(user).execute().body());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public boolean authenticateUser(User user) {
+        try {
+            return Boolean.TRUE.equals(toDoRESTWebAPI.authenticateUser(user).execute().body());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 }
