@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import de.thieme.ToDoApplication;
-import de.thieme.model.User;
 
 public class LoginViewModel extends ViewModel {
 
@@ -16,7 +15,7 @@ public class LoginViewModel extends ViewModel {
 
     private MutableLiveData<Boolean> loginButtonEnabled = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> loginSuccessful = new MutableLiveData<>();
-    private MutableLiveData<Boolean> progressBarVisible = new MutableLiveData<>(false);  // Track ProgressBar visibility
+    private MutableLiveData<Boolean> progressBarVisible = new MutableLiveData<>(false);
 
     private MutableLiveData<String> passwordErrorStatus = new MutableLiveData<>();
     private MutableLiveData<String> emailErrorStatus = new MutableLiveData<>();
@@ -108,6 +107,7 @@ public class LoginViewModel extends ViewModel {
 
     public void performLogin(ToDoApplication application) {
         progressBarVisible.setValue(true);
+        loginButtonEnabled.setValue(false);
 
         new Thread(() -> {
             try {
@@ -115,15 +115,14 @@ public class LoginViewModel extends ViewModel {
             } catch (Exception ignored) {
             }
 
-            loginSuccessful.postValue(
-                    application.authenticateUser(new User(this.email, this.password))
-            );
+            loginSuccessful.postValue(application.authenticateUser(this.email, this.password));
 
-            if (!Boolean.TRUE.equals(loginSuccessful.getValue())) {
+            if (Boolean.FALSE.equals(loginSuccessful.getValue())) {
                 credentialsErrorStatus.postValue("Ungültige Anmeldedaten.");
             }
 
             progressBarVisible.postValue(false);
+            loginButtonEnabled.postValue(true);
         }).start();
     }
 }

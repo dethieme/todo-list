@@ -73,9 +73,10 @@ public class ToDoApplication extends Application {
         return this.crudOperations instanceof RoomToDoCRUDOperations;
     }
 
-    public boolean authenticateUser(User user) {
+    public boolean authenticateUser(String email, String password) {
         if (!isOffline()) {
-           return ((SyncedToDoCRUDOperations) this.crudOperations).authenticateUser(user);
+            User user = new User(email, password);
+            return ((SyncedToDoCRUDOperations) this.crudOperations).authenticateUser(user);
         }
 
         return false;
