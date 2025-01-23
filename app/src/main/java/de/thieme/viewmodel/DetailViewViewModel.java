@@ -59,7 +59,7 @@ public class DetailViewViewModel extends ViewModel {
         todoValidOnSave.setValue(true);
     }
 
-    public boolean checkFieldInputInvalid(int keyId) {
+    public boolean checkNameFieldInputInvalid(int keyId) {
         if (keyId == EditorInfo.IME_ACTION_NEXT || keyId == EditorInfo.IME_ACTION_DONE) {
             if (todo.getName().length() < 4) {
                 this.errorStatus.setValue("Name zu kurz.");

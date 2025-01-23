@@ -71,7 +71,7 @@ public class OverviewViewModel extends ViewModel {
     }
 
     public void readAll() {
-        processingState.postValue(ProcessingState.RUNNING_LONG);
+        processingState.setValue(ProcessingState.RUNNING_LONG);
 
         new Thread(() -> {
             try {

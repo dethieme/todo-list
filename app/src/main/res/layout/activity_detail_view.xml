@@ -48,7 +48,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onEditorAction="@{(view, keyId, event) -> viewModel.checkFieldInputInvalid(keyId)}"
+                android:onEditorAction="@{(view, keyId, event) -> viewModel.checkNameFieldInputInvalid(keyId)}"
                 android:onTextChanged="@{() -> viewModel.onNameFieldInputChanged()}"
                 android:singleLine="true"
                 android:text="@={viewModel.todo.name}"

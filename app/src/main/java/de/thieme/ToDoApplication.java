@@ -20,7 +20,7 @@ public class ToDoApplication extends Application {
     private static final String LOG_TAG = ToDoApplication.class.getSimpleName();
     private static final String BACKEND_URL = "http://10.0.2.2:8080/api/todos";
 
-    private final User user = new User("de.thieme@ostfalia.de", "123456");
+    private final User TEST_USER = new User("de.thieme@ostfalia.de", "123456");
     private IToDoCRUDOperations crudOperations;
 
     @Override
@@ -55,7 +55,7 @@ public class ToDoApplication extends Application {
             if (isBackendAccessible()) {
                 RoomToDoCRUDOperations localCrud = new RoomToDoCRUDOperations(this);
                 RetrofitToDoCRUDOperations remoteCrud = new RetrofitToDoCRUDOperations();
-                remoteCrud.prepareUser(user);
+                remoteCrud.prepareUser(TEST_USER);
 
                 this.crudOperations = new SyncedToDoCRUDOperations(localCrud, remoteCrud);
                 this.crudOperations.synchronize();

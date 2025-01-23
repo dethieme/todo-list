@@ -6,6 +6,8 @@ import androidx.core.util.PatternsCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.regex.Pattern;
+
 import de.thieme.ToDoApplication;
 
 public class LoginViewModel extends ViewModel {
@@ -67,7 +69,6 @@ public class LoginViewModel extends ViewModel {
                 this.emailErrorStatus.setValue("Ungültige E-Mail.");
             }
 
-            validateLoginButtonState();
             return true;
         }
 
@@ -76,11 +77,10 @@ public class LoginViewModel extends ViewModel {
 
     public boolean checkPasswordFieldInputInvalid(int keyId) {
         if (keyId == EditorInfo.IME_ACTION_DONE) {
-            if (password.length() != 6) {
-                this.passwordErrorStatus.setValue("Passwort zu kurz.");
+            if (!Pattern.matches("^[0-9]{6}$", this.password)) {
+                this.passwordErrorStatus.setValue("Ungültiges Passwort.");
             }
 
-            validateLoginButtonState();
             return true;
         }
 
@@ -102,7 +102,7 @@ public class LoginViewModel extends ViewModel {
     }
 
     private void validateLoginButtonState() {
-        loginButtonEnabled.setValue(!email.trim().isEmpty() && !password.isEmpty());
+        loginButtonEnabled.setValue(!email.trim().isEmpty() && !password.trim().isEmpty());
     }
 
     public void performLogin(ToDoApplication application) {
@@ -111,7 +111,8 @@ public class LoginViewModel extends ViewModel {
 
         new Thread(() -> {
             try {
-                Thread.sleep(2000); // Simulate network delay
+                // Simulate network delay
+                Thread.sleep(2000);
             } catch (Exception ignored) {
             }
 
