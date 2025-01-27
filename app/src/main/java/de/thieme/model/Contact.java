@@ -11,7 +11,6 @@ public class Contact implements Serializable {
 
     private String mailAddress;
 
-    // Default constructor required for Room
     public Contact(String id) {
         this.id = id;
     }

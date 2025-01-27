@@ -97,9 +97,9 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
         readAll().forEach(todo -> delete(todo.getId()));
     }
 
-    public boolean prepareUser(User user) {
+    public void prepareUser(User user) {
         try {
-            return Boolean.TRUE.equals(toDoRESTWebAPI.prepareUser(user).execute().body());
+            toDoRESTWebAPI.prepareUser(user).execute();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
