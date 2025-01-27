@@ -40,6 +40,7 @@
                 android:inputType="textEmailAddress"
                 android:onEditorAction="@{(view, keyId, event) -> viewModel.checkEmailFieldInputInvalid(keyId)}"
                 android:onTextChanged="@{() -> viewModel.onEmailFieldInputChanged()}"
+                android:afterTextChanged="@{() -> viewModel.validateLoginButtonState()}"
                 android:singleLine="true"
                 android:text="@={viewModel.email}" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -64,6 +65,7 @@
                 android:maxLength="6"
                 android:onEditorAction="@{(view, keyId, event) -> viewModel.checkPasswordFieldInputInvalid(keyId)}"
                 android:onTextChanged="@{() -> viewModel.onPasswordFieldInputChanged()}"
+                android:afterTextChanged="@{() -> viewModel.validateLoginButtonState()}"
                 android:singleLine="true"
                 android:text="@={viewModel.password}" />
         </com.google.android.material.textfield.TextInputLayout>

@@ -90,18 +90,16 @@ public class LoginViewModel extends ViewModel {
     public boolean onEmailFieldInputChanged() {
         emailErrorStatus.setValue(null);
         credentialsErrorStatus.setValue(null);
-        validateLoginButtonState();
         return true;
     }
 
     public boolean onPasswordFieldInputChanged() {
         passwordErrorStatus.setValue(null);
         credentialsErrorStatus.setValue(null);
-        validateLoginButtonState();
         return true;
     }
 
-    private void validateLoginButtonState() {
+    public void validateLoginButtonState() {
         loginButtonEnabled.setValue(!email.trim().isEmpty() && !password.trim().isEmpty());
     }
 
@@ -117,13 +115,6 @@ public class LoginViewModel extends ViewModel {
             }
 
             loginSuccessful.postValue(application.authenticateUser(this.email, this.password));
-
-            if (Boolean.FALSE.equals(loginSuccessful.getValue())) {
-                credentialsErrorStatus.postValue("Ungültige Anmeldedaten.");
-            }
-
-            progressBarVisible.postValue(false);
-            loginButtonEnabled.postValue(true);
         }).start();
     }
 }

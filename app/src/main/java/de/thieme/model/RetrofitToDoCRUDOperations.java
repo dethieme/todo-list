@@ -28,10 +28,10 @@ public class RetrofitToDoCRUDOperations implements IToDoCRUDOperations {
         @DELETE("todos/{id}")
         public Call<Boolean> deleteToDo(@Path("id") long id);
 
-        @PUT("users/prepare")
+        @PUT("users/auth")
         public Call<Boolean> authenticateUser(@Body User user);
 
-        @PUT("users/auth")
+        @PUT("users/prepare")
         public Call<Boolean> prepareUser(@Body User user);
     }
 

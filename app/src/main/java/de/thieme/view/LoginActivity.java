@@ -27,6 +27,10 @@ public class LoginActivity extends AppCompatActivity {
             if (isSuccessful) {
                 this.setResult(RESULT_OK);
                 this.finish();
+            } else {
+                viewModel.getCredentialsErrorStatus().setValue("Ungültige Anmeldedaten.");
+                viewModel.getProgressBarVisible().setValue(false);
+                viewModel.getLoginButtonEnabled().setValue(true);
             }
         });
 
